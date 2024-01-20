@@ -14,7 +14,15 @@ Instructions:
 -----------
 
 1. The main code to run is under the script **main.py**\
-2. The train & test data are under the directory: data/fashion
+2. The train & test data should be downloaded separately and be under the directory: **data/fashion**\
+   The data can be downloaded from:
+
+| Name                       | Link                                     |
+|----------------------------| ---------------------------------------- |
+| train-images-idx3-ubyte.gz | [DOWNLOAD](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz) |
+| train-labels-idx1-ubyte.gz | [DOWNLOAD](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz) |
+| t10k-images-idx3-ubyte.gz  | [DOWNLOAD](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz) |
+| t10k-labels-idx1-ubyte.gz  | [DOWNLOAD](http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz) |
 
 TODOs:
 -----------

@@ -60,7 +60,8 @@ def fit(model_type, optimizer_method, params):
     batch_size = params['batch_size']
 
     # Set tensorboard directory
-    tensorboard_dir = os.path.join(TENSORBOARD_DIR, f"model_{model_type}")
+    tensorboard_dir = os.path.join(TENSORBOARD_DIR, f"model_{model_type}_epochs_{epochs}_lr_{lr}_weightDecay_"
+                                                    f"{weight_decay}_batchSize_{batch_size}_optimizer_{optimizer_method}")
 
     # TensorBoard
     writer = SummaryWriter(log_dir=tensorboard_dir)
@@ -185,7 +186,7 @@ def main():
     params = {'weight_decay': 0.0,
               'lr': 1.0e-4,
               'epochs': 50,
-              'batch_size': 64}
+              'batch_size': 32}
 
     for _model_type in MODEL_TYPES:
         if _model_type == 'weight_decay':

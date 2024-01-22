@@ -7,3 +7,5 @@ MODEL_TYPES = ['regular',
                'bn']
 
 OUTPUTS_DIR = 'results'
+MODELS_OUTPUT_DIR = 'results/models'
+TENSORBOARD_DIR = 'results/tensor_board'

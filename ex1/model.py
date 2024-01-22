@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 class Lenet5(nn.Module):
     def __init__(self, model_type: str, num_classes: int):
@@ -27,9 +28,11 @@ class Lenet5(nn.Module):
         layers_list = nn.ModuleList()
 
         layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Sequential(nn.Conv2d(6, 16, kernel_size=5, stride=1, padding=0),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Flatten())
@@ -46,9 +49,11 @@ class Lenet5(nn.Module):
         layers_list = nn.ModuleList()
 
         layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Sequential(nn.Conv2d(6, 16, kernel_size=5, stride=1, padding=0),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Flatten())
@@ -71,10 +76,12 @@ class Lenet5(nn.Module):
 
         layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
                                          nn.BatchNorm2d(6),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Sequential(nn.Conv2d(6, 16, kernel_size=5, stride=1, padding=0),
                                          nn.BatchNorm2d(16),
+                                         nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
         layers_list.append(nn.Flatten())
@@ -93,3 +100,5 @@ class Lenet5(nn.Module):
             out = layer(out)
 
         return out
+
+

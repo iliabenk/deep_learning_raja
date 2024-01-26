@@ -27,7 +27,7 @@ class Lenet5(nn.Module):
     def _init_model_regular(num_classes):
         layers_list = nn.ModuleList()
 
-        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=2),
                                          nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
@@ -37,7 +37,10 @@ class Lenet5(nn.Module):
 
         layers_list.append(nn.Flatten())
 
-        layers_list.append(nn.Sequential(nn.Linear(256, 84),
+        layers_list.append(nn.Sequential(nn.Linear(400, 120),
+                                         nn.ReLU()))
+
+        layers_list.append(nn.Sequential(nn.Linear(120, 84),
                                          nn.ReLU()))
 
         layers_list.append(nn.Linear(84, num_classes))
@@ -48,7 +51,7 @@ class Lenet5(nn.Module):
     def _init_model_dropout(num_classes):
         layers_list = nn.ModuleList()
 
-        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=2),
                                          nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
 
@@ -58,9 +61,11 @@ class Lenet5(nn.Module):
 
         layers_list.append(nn.Flatten())
 
-        layers_list.append(nn.Sequential(nn.Linear(256, 84),
-                                         nn.ReLU(),
-                                         nn.Dropout(0.5)))
+        layers_list.append(nn.Sequential(nn.Linear(400, 120),
+                                         nn.ReLU()))
+
+        layers_list.append(nn.Sequential(nn.Linear(120, 84),
+                                         nn.ReLU()))
 
         layers_list.append(nn.Linear(84, num_classes))
 
@@ -74,7 +79,7 @@ class Lenet5(nn.Module):
     def _init_model_bn(num_classes):
         layers_list = nn.ModuleList()
 
-        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
+        layers_list.append(nn.Sequential(nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=2),
                                          nn.BatchNorm2d(6),
                                          nn.ReLU(),
                                          nn.MaxPool2d(kernel_size=2, stride=2)))
@@ -86,7 +91,10 @@ class Lenet5(nn.Module):
 
         layers_list.append(nn.Flatten())
 
-        layers_list.append(nn.Sequential(nn.Linear(256, 84),
+        layers_list.append(nn.Sequential(nn.Linear(400, 120),
+                                         nn.ReLU()))
+
+        layers_list.append(nn.Sequential(nn.Linear(120, 84),
                                          nn.ReLU()))
 
         layers_list.append(nn.Linear(84, num_classes))

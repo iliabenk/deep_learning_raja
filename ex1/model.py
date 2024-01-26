@@ -62,10 +62,12 @@ class Lenet5(nn.Module):
         layers_list.append(nn.Flatten())
 
         layers_list.append(nn.Sequential(nn.Linear(400, 120),
-                                         nn.ReLU()))
+                                         nn.ReLU(),
+                                         nn.Dropout(0.5)))
 
         layers_list.append(nn.Sequential(nn.Linear(120, 84),
-                                         nn.ReLU()))
+                                         nn.ReLU(),
+                                         nn.Dropout(0.5)))
 
         layers_list.append(nn.Linear(84, num_classes))
 

@@ -150,6 +150,8 @@ def fit(model_type, optimizer_method, params):
 
             writer.add_scalar('Validation/Loss', epoch_loss, epoch)
             writer.add_scalar('Validation/Accuracy', epoch_acc, epoch)
+            writer.add_scalar('GE/Accuracy (train - test)', train_acc_history[-1] - val_acc_history[-1], epoch)
+            writer.add_scalar('GE/Loss (test - train)', val_loss_history[-1] - train_loss_history[-1], epoch)
 
             print(f"Model: {model_type}, Validation: epoch [{epoch + 1}/{epochs}], Loss = {epoch_loss:.6f}, "
                   f"Accuracy {epoch_acc}")

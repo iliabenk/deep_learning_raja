@@ -58,10 +58,22 @@ def fit(model_type, optimizer_method, params):
     lr = params['lr']
     epochs = params['epochs']
     batch_size = params['batch_size']
+    lr_scheduler_enabled = params['lr_scheduler']['enable']
+    lr_scheduler_gamma = params['lr_scheduler']['gamma']
+    lr_scheduler_step = params['lr_scheduler']['step']
 
     # Set tensorboard directory
-    tensorboard_dir = os.path.join(TENSORBOARD_DIR, f"model_{model_type}_epochs_{epochs}_lr_{lr}_weightDecay_"
-                                                    f"{weight_decay}_batchSize_{batch_size}_optimizer_{optimizer_method}")
+    if lr_scheduler_enabled:
+        tensorboard_dir = os.path.join(TENSORBOARD_DIR, f"model_{model_type}__epochs_{epochs}__lr_{lr}__weightDecay_"
+                                                        f"{weight_decay}__batchSize_{batch_size}__optimizer_"
+                                                        f"{optimizer_method}__lr_scheduler_params__enabled_"
+                                                        f"{lr_scheduler_enabled}__gamma_{lr_scheduler_gamma}__step_"
+                                                        f"{lr_scheduler_step}")
+
+    else:
+        tensorboard_dir = os.path.join(TENSORBOARD_DIR, f"model_{model_type}__epochs_{epochs}__lr_{lr}__weightDecay_"
+                                                        f"{weight_decay}__batchSize_{batch_size}__optimizer_"
+                                                        f"{optimizer_method}__lr_scheduler_enabled_{lr_scheduler_enabled}")
 
     # TensorBoard
     writer = SummaryWriter(log_dir=tensorboard_dir)
@@ -88,6 +100,11 @@ def fit(model_type, optimizer_method, params):
         assert False, f"optimizer={optimizer_method} is not supported"
 
     print(f"Optimizer = {optimizer_method}")
+
+    scheduler = None
+    if lr_scheduler_enabled:
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=lr_scheduler_step,
+                                                    gamma=lr_scheduler_gamma)
 
     train_loss_history = []
     train_acc_history = []
@@ -132,6 +149,9 @@ def fit(model_type, optimizer_method, params):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+        if scheduler is not None:
+            scheduler.step()
 
         epoch_loss /= len(train_loader.dataset)
         train_loss_history.append(epoch_loss)
@@ -184,9 +204,14 @@ def main():
 
     models = dict()
     params = {'weight_decay': 0.0,
-              'lr': 1.0e-4,
-              'epochs': 50,
-              'batch_size': 32}
+              'lr': 1.0e-3,
+              'epochs': 15,
+              'batch_size': 64,
+              'lr_scheduler': {
+                  'enable': True,
+                  'gamma': 0.5,
+                  'step': 10
+              }}
 
     for _model_type in MODEL_TYPES:
         if _model_type == 'weight_decay':

@@ -14,7 +14,7 @@ from utils import seed_handler, model_utils
 from model import Model, EnsembleModel
 from data_handler import load_data, load_glove_weights
 
-def fit(model_type, optimizer_method, use_pretrained_embeddings, ensemble_size, factor_epoch, lr_factor,
+def  fit(model_type, optimizer_method, use_pretrained_embeddings, ensemble_size, factor_epoch, lr_factor,
         dropout, lr, epochs, batch_size, seq_len, lr_schedule_enabled, winit):
 
     # Set tensorboard directory
@@ -63,10 +63,11 @@ def fit(model_type, optimizer_method, use_pretrained_embeddings, ensemble_size, 
     model = EnsembleModel(models_list)
 
     # Init weights to [-0.1, 0.1] uniformly as in the paper
-    for param in model.parameters():
-        if len(param.size()) >= 2:
-            # If the parameter is a weight matrix (not bias), apply uniform initialization
-            nn.init.uniform_(param, a=-winit, b=winit)
+    if winit is not None:
+        for param in model.parameters():
+            if len(param.size()) >= 2:
+                # If the parameter is a weight matrix (not bias), apply uniform initialization
+                nn.init.uniform_(param, a=-winit, b=winit)
 
     # Loss
     criterion = nn.CrossEntropyLoss()
@@ -128,7 +129,7 @@ def fit(model_type, optimizer_method, use_pretrained_embeddings, ensemble_size, 
 
         writer.add_scalar('Train/Perplexity', train_perplexity, epoch)
 
-        print(f"Model: {model_type}, dropout: {dropout}, Test: epoch [{epoch + 1}/{epochs}], "
+        print(f"Model: {model_type}, dropout: {dropout}, Train: epoch [{epoch + 1}/{epochs}], "
               f"Perplexity {train_perplexity}")
 
         # Validation Perplexity
@@ -136,7 +137,7 @@ def fit(model_type, optimizer_method, use_pretrained_embeddings, ensemble_size, 
 
         writer.add_scalar('Validation/Perplexity', val_perplexity, epoch)
 
-        print(f"Model: {model_type}, dropout: {dropout}, Test: epoch [{epoch + 1}/{epochs}], "
+        print(f"Model: {model_type}, dropout: {dropout}, Validation: epoch [{epoch + 1}/{epochs}], "
               f"Perplexity {val_perplexity}")
 
         # Test Perplexity
@@ -178,6 +179,20 @@ def main():
     seed_handler._set_seed(INIT_SEED)
 
     models = dict()
+    models["GRU_dropout"] = fit(model_type='GRU',
+                              optimizer_method='sgd',
+                              use_pretrained_embeddings=True,
+                              ensemble_size=1,
+                              factor_epoch=40,
+                              lr_factor=1.1,
+                              dropout=0.5,
+                              lr=0.2,
+                              epochs=70,
+                              batch_size=20,
+                              seq_len=35,
+                              lr_schedule_enabled=True,
+                              winit=None)
+
     models["LSTM_dropout"] = fit(model_type='LSTM',
                               optimizer_method='sgd',
                               use_pretrained_embeddings=False,
@@ -186,51 +201,39 @@ def main():
                               lr_factor=2,
                               dropout=0.5,
                               lr=1,
-                              epochs=71,
+                              epochs=50,
                               batch_size=20,
                               seq_len=35,
                               lr_schedule_enabled=True,
                               winit=0.05)
 
-    models["GRU_dropout"] = fit(model_type='GRU',
+    models["LSTM_no_dropout"] = fit(model_type='LSTM',
                               optimizer_method='sgd',
                               use_pretrained_embeddings=False,
                               ensemble_size=1,
-                              factor_epoch=60,
-                              lr_factor=1.2,
-                              dropout=0.5,
-                              lr=0.3,
-                              epochs=82,
+                              factor_epoch=4,
+                              lr_factor=2,
+                              dropout=0.0,
+                              lr=1.0e-0,
+                              epochs=13,
                               batch_size=20,
                               seq_len=35,
                               lr_schedule_enabled=True,
                               winit=0.05)
 
-    # models["LSTM_no_dropout"] = fit(model_type='LSTM',
-    #                           optimizer_method='sgd',
-    #                           use_pretrained_embeddings=False,
-    #                           ensemble_size=1,
-    #                           factor_epoch=4,
-    #                           lr_factor=2,
-    #                           dropout=0.0,
-    #                           lr=1.0e-0,
-    #                           epochs=13,
-    #                           batch_size=20,
-    #                           seq_len=40,
-    #                           lr_schedule_enabled=True)
-
-    # models["GRU_no_dropout"] = fit(model_type='GRU',
-    #                           optimizer_method='sgd',
-    #                           use_pretrained_embeddings=False,
-    #                           ensemble_size=1,
-    #                           factor_epoch=7,
-    #                           lr_factor=1.5,
-    #                           dropout=0.0,
-    #                           lr=2.0e-1,
-    #                           epochs=13,
-    #                           batch_size=20,
-    #                           seq_len=40,
-    #                           lr_schedule_enabled=True)
+    models["GRU_no_dropout"] = fit(model_type='GRU',
+                              optimizer_method='sgd',
+                              use_pretrained_embeddings=False,
+                              ensemble_size=1,
+                              factor_epoch=7,
+                              lr_factor=1.5,
+                              dropout=0.0,
+                              lr=2.0e-1,
+                              epochs=13,
+                              batch_size=20,
+                              seq_len=35,
+                              lr_schedule_enabled=True,
+                              winit=0.1)
 
     for _model_type, _model in models.items():
         model_utils.save_model(model=_model,

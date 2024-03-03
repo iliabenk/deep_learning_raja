@@ -6,6 +6,7 @@ from configs import INIT_SEED
 from configs import DATA_DIR, DATA_TYPE
 import torchvision.transforms as transforms
 import torch.nn as nn
+from torchvision import datasets
 
 class SVM_Dataset(Dataset):
     def __init__(self, X, y):
@@ -137,3 +138,57 @@ def extract_features(vae_model, data_loader, device):
             labels.extend(label.numpy())
 
     return np.array(features), np.array(labels)
+
+#Q4
+
+
+# Initialize the weights of the networks
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+
+
+# Define the Wasserstein loss function
+def wasserstein_loss(output, target):
+    return torch.mean(output * target)
+
+
+def load_Fashionmnist(batch_size=128, architecture='WGAN'):
+
+    if architecture == 'WGAN':
+      transform = transforms.Compose([
+          transforms.Resize(32),
+          transforms.ToTensor()])
+    else:
+      transform = transforms.Compose([transforms.ToTensor()])
+
+    # set data FashionMnist
+    train_data = datasets.FashionMNIST('../fashion_data', train=True, download=True,
+                                       transform=transform)
+    test_data = datasets.FashionMNIST('../fashion_data', train=False,
+                                      transform=transform)
+    # Create dataloaders
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
+
+    return train_loader, test_loader
+
+
+# Function to calculate gradient penalty for WGAN
+def calculate_gradient_penalty(discriminator, real_images, fake_images):
+    epsilon = torch.rand(len(real_images), 1, 1, 1).to(device)
+    interpolated = epsilon * real_images + (1 - epsilon) * fake_images
+    interpolated.requires_grad_(True)
+    prob_interpolated = discriminator(interpolated)
+    gradients = torch.autograd.grad(outputs=prob_interpolated, inputs=interpolated,
+                                    grad_outputs=torch.ones(prob_interpolated.size()).to(device),
+                                    create_graph=True, retain_graph=True)[0]
+    gradients = gradients.view(gradients.size(0), -1)
+    gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
+    return gradient_penalty
+
+

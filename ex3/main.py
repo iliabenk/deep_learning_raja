@@ -318,10 +318,13 @@ def dcgan():
     train_loader, test_loader = load_Fashionmnist(batch_size=128, architecture='DCGAN')
 
     # Train the DCGAN
+    netG.train()
+    netD.train()
     dcgan_d_losses, dcgan_g_losses = train_dcgan(nz, train_loader, netG, netD, criterion, optimizerG, optimizerD, num_epochs=5)
     plot_losses(dcgan_d_losses, dcgan_g_losses, 'DCGAN Losses (MNIST)')
 
     # Generate images using DCGAN
+    netG.eval()
     num_images_to_generate = 10
     dcgan_generated_images = generate_images(netG, num_images_to_generate, nz)
 
@@ -352,10 +355,13 @@ def wgan():
     train_loader, test_loader = load_Fashionmnist(batch_size=128, architecture='WGAN')
 
     # Train the WGAN
+    netG.train()
+    netD.train()
     wgan_d_losses, wgan_g_losses = train_wgan(nz, train_loader, netG, netD, optimizerG, optimizerD, num_epochs=5)
     plot_losses(wgan_d_losses, wgan_g_losses, 'WGAN Losses (Fashion MNIST)')
 
     # Generate images using WGAN
+    netG.eval()
     num_images_to_generate = 10
     wgan_generated_images = generate_images(netG, num_images_to_generate, nz)
 

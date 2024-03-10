@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+import tensorboard
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets
 import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.data import DataLoader
-# from torch.utils.tensorboard import SummaryWriter
 import os
 import timeit
 from torch.nn import functional as F
@@ -271,8 +271,8 @@ def main():
     wgan = gan_type(model='WGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                     dataset='fashion-mnist', epochs=5, batch_size=64)
 
-    gan(dcgan)
-    gan(wgan)
+    # gan(dcgan)
+    # gan(wgan)
 
     dcgan.is_train = wgan.is_train = 'False'
 

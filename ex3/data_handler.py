@@ -1,6 +1,9 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
+import torch.utils.data as data_utils
 import numpy as np
+from torchvision.datasets import FashionMNIST
+
 from utils import mnist_reader, seed_handler
 from configs import INIT_SEED
 from configs import DATA_DIR, DATA_TYPE
@@ -141,54 +144,96 @@ def extract_features(vae_model, data_loader, device):
 
 #Q4
 
+def get_data_loader(args):
 
-# Initialize the weights of the networks
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
-
-
-# Define the Wasserstein loss function
-def wasserstein_loss(output, target):
-    return torch.mean(output * target)
+    trans = transforms.Compose([
+        transforms.Resize(32),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, ), (0.5, )),
+    ])
+    train_dataset = FashionMNIST(root=args.dataroot, train=True, download=args.download, transform=trans)
+    test_dataset = FashionMNIST(root=args.dataroot, train=False, download=args.download, transform=trans)
 
 
-def load_Fashionmnist(batch_size=128, architecture='WGAN'):
+    # Check if everything is ok with loading datasets
+    assert train_dataset
+    assert test_dataset
 
-    if architecture == 'WGAN':
-      transform = transforms.Compose([
-          transforms.Resize(32),
-          transforms.ToTensor()])
+    train_dataloader = data_utils.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    test_dataloader = data_utils.DataLoader(test_dataset,  batch_size=args.batch_size, shuffle=True)
+
+    return train_dataloader, test_dataloader
+
+
+class gan_type:
+    def __init__(self, model, is_train, download, dataroot, dataset, epochs, cuda, batch_size):
+        self.model = model
+        self.is_train = is_train
+        self.download = download
+        self.dataroot = dataroot
+        self.dataset = dataset
+        self.epochs = epochs
+        self.cuda = cuda
+        self.batch_size = batch_size
+        self.load_D = 'discriminator.pkl'
+        self.load_G = 'generator.pkl'
+        self.channels = 1
+
+
+def get_inception_score(imgs, cuda=True, batch_size=32, resize=False, splits=1):
+    """
+        Computes the inception score of the generated images imgs
+        imgs -- Torch dataset of (3xHxW) numpy images normalized in the range [-1, 1]
+        cuda -- whether or not to run on GPU
+        batch_size -- batch size for feeding into Inception v3
+        splits -- number of splits
+    """
+    N = len(imgs)
+
+    assert batch_size > 0
+    assert N > batch_size
+
+    # Set up dtype
+    if cuda:
+        dtype = torch.cuda.FloatTensor
     else:
-      transform = transforms.Compose([transforms.ToTensor()])
+        if torch.cuda.is_available():
+            print("WARNING: You have a CUDA device, so you should probably set cuda=True")
+        dtype = torch.FloatTensor
 
-    # set data FashionMnist
-    train_data = datasets.FashionMNIST('../fashion_data', train=True, download=True,
-                                       transform=transform)
-    test_data = datasets.FashionMNIST('../fashion_data', train=False,
-                                      transform=transform)
-    # Create dataloaders
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
+    # Set up dataloader
+    dataloader = torch.utils.data.DataLoader(imgs, batch_size=batch_size)
 
-    return train_loader, test_loader
+    # Load inception model
+    inception_model = inception_v3(pretrained=True, transform_input=False).type(dtype)
+    inception_model.eval();
+    up = nn.Upsample(size=(299, 299), mode='bilinear').type(dtype)
+    def get_pred(x):
+        if resize:
+            x = up(x)
+        x = inception_model(x)
+        return F.softmax(x).data.cpu().numpy()
 
+    # Get predictions
+    preds = np.zeros((N, 1000))
 
-# Function to calculate gradient penalty for WGAN
-def calculate_gradient_penalty(discriminator, real_images, fake_images):
-    epsilon = torch.rand(len(real_images), 1, 1, 1).to(device)
-    interpolated = epsilon * real_images + (1 - epsilon) * fake_images
-    interpolated.requires_grad_(True)
-    prob_interpolated = discriminator(interpolated)
-    gradients = torch.autograd.grad(outputs=prob_interpolated, inputs=interpolated,
-                                    grad_outputs=torch.ones(prob_interpolated.size()).to(device),
-                                    create_graph=True, retain_graph=True)[0]
-    gradients = gradients.view(gradients.size(0), -1)
-    gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
-    return gradient_penalty
+    for i, batch in enumerate(dataloader, 0):
+        batch = batch.type(dtype)
+        batchv = Variable(batch)
+        batch_size_i = batch.size()[0]
 
+        preds[i*batch_size:i*batch_size + batch_size_i] = get_pred(batchv)
 
+    # Now compute the mean kl-div
+    split_scores = []
+
+    for k in range(splits):
+        part = preds[k * (N // splits): (k+1) * (N // splits), :]
+        py = np.mean(part, axis=0)
+        scores = []
+        for i in range(part.shape[0]):
+            pyx = part[i, :]
+            scores.append(entropy(pyx, py))
+        split_scores.append(np.exp(np.mean(scores)))
+
+    return np.mean(split_scores), np.std(split_scores)

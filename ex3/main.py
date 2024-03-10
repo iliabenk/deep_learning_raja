@@ -5,7 +5,7 @@ from torchvision import datasets
 import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 import os
 import timeit
 from torch.nn import functional as F
@@ -14,12 +14,11 @@ from sklearn.svm import SVC
 import torchvision.utils as vutils
 import torch.optim as optim
 
-from configs import LABELS, INIT_SEED, TENSORBOARD_DIR, MODELS_OUTPUT_DIR, IS_OPTIMIZE_LR, DATA_TYPE, \
-    CIFAR10_ARCHITECTURE
+from configs import LABELS, INIT_SEED, TENSORBOARD_DIR, MODELS_OUTPUT_DIR, IS_OPTIMIZE_LR, DATA_TYPE
+from dcgan import DCGAN_MODEL
 from utils import seed_handler, model_utils
-from model import VAE, DCGAN_Generator, DCGAN_Discriminator, WGAN_Generator, WGAN_Discriminator
-from data_handler import load_data, transform_func, extract_features, weights_init, wasserstein_loss, load_Fashionmnist, \
-    calculate_gradient_penalty
+from model import VAE
+from data_handler import load_data, transform_func, extract_features, get_data_loader, gan_type
 
 # Define the device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -187,245 +186,97 @@ def optimize_lr(labels, params):
 
 # Q4
 
-# Function to display images
-def show_images(images, title):
-    plt.figure(figsize=(10, 1))
-    plt.axis("off")
-    plt.title(title)
-    plt.imshow(np.transpose(vutils.make_grid(images, padding=2, normalize=True), (1, 2, 0)))
-    plt.show()
+def WGAN_CP(args):
+    pass
 
 
-# Define a function to generate images from trained models
-def generate_images(generator, num_images, nz):
-    noise = torch.randn(num_images, nz, 1, 1, device=device)
-    generated_images = generator(noise).detach().cpu()
-    return generated_images
+def gan(gan_type):
+    model = None
 
+    if gan_type.model == 'DCGAN':
+        model = DCGAN_MODEL(gan_type)
+    elif gan_type.model == 'WGAN_CP':
+        model = WGAN_CP(gan_type)
+    else:
+        print("Model type non-existing. Try again.")
+        exit(-1)
 
-# Define a function to plot loss functions
-def plot_losses(d_losses, g_losses, title):
-    plt.figure(figsize=(10, 5))
-    plt.plot(d_losses, label='Discriminator Loss')
-    plt.plot(g_losses, label='Generator Loss')
-    plt.xlabel('Iterations')
-    plt.ylabel('Loss')
-    plt.title(title)
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    # Load datasets to train and test loaders
+    train_loader, test_loader = get_data_loader(gan_type)
+    # feature_extraction = FeatureExtractionTest(train_loader, test_loader, args.cuda, args.batch_size)
 
+    # Start model training
+    if gan_type.is_train == 'True':
+        model.train(train_loader)
 
-# Define the training loop
-def train_dcgan(nz, dataloader, netG, netD, criterion, optimizerG, optimizerD, num_epochs=5):
-    # Define the device
-    d_losses = []
-    g_losses = []
-    for epoch in range(num_epochs):
-        for i, data in enumerate(dataloader, 0):
-            # Update Discriminator network: maximize log(D(x)) + log(1 - D(G(z)))
-            netD.zero_grad()
-            real_images = data[0].to(device)
-            batch_size = real_images.size(0)
-            label = torch.full((batch_size,), 1, dtype=torch.float, device=device)  # Real label
-            output = netD(real_images).view(-1)
-            errD_real = criterion(output, label)
-            errD_real.backward()
-            D_x = output.mean().item()
-
-            noise = torch.randn(batch_size, nz, 1, 1, device=device)
-            fake_images = netG(noise)
-            label.fill_(0)  # Fake label
-            output = netD(fake_images.detach()).view(-1)
-            errD_fake = criterion(output, label)
-            errD_fake.backward()
-            D_G_z1 = output.mean().item()
-            errD = errD_real + errD_fake
-            optimizerD.step()
-
-            # Update Generator network: maximize log(D(G(z)))
-            netG.zero_grad()
-            label.fill_(1)  # Real label
-            output = netD(fake_images).view(-1)
-            errG = criterion(output, label)
-            errG.backward()
-            D_G_z2 = output.mean().item()
-            optimizerG.step()
-
-            d_losses.append(errD.item())
-            g_losses.append(errG.item())
-
-        return d_losses, g_losses
-
-
-# Define the training loop
-def train_wgan(nz, dataloader, netG, netD, optimizerG, optimizerD, num_epochs=5):
-    d_losses = []
-    g_losses = []
-    for epoch in range(num_epochs):
-        for i, data in enumerate(dataloader, 0):
-            # Train Discriminator
-            netD.zero_grad()
-            real_images = data[0].to(device)
-            batch_size = real_images.size(0)
-            real_output = netD(real_images).view(-1)
-            fake_images = netG(torch.randn(batch_size, nz, 1, 1, device=device))
-            fake_output = netD(fake_images.detach()).view(-1)
-            gradient_penalty = calculate_gradient_penalty(netD, real_images, fake_images)
-            d_loss = wasserstein_loss(fake_output, -torch.ones_like(fake_output)) - \
-                     wasserstein_loss(real_output, torch.ones_like(real_output)) + \
-                     gradient_penalty
-            d_loss.backward()
-            optimizerD.step()
-
-            # Train Generator
-            netG.zero_grad()
-            fake_output = netD(fake_images).view(-1)
-            g_loss = -wasserstein_loss(fake_output, torch.ones_like(fake_output))
-            g_loss.backward()
-            optimizerG.step()
-
-            d_losses.append(d_loss.item())
-            g_losses.append(g_loss.item())
-
-        return d_losses, g_losses
-
-
-def dcgan():
-    # Initialize hyperparameters
-    nz = 100  # latent z vector
-    ngf = 64  # feature maps in generator
-    ndf = 64  # feature maps in discriminator
-    nc = 1  # number of channels in the output images (for MNIST dataset)
-
-    # Create the generator
-    netG = DCGAN_Generator(nz, ngf, nc)
-    # Create the discriminator
-    netD = DCGAN_Discriminator(nc, ndf)
-
-    # Define loss function (Binary Cross Entropy)
-    criterion = nn.BCELoss()
-
-    # Setup Adam optimizers for both G and D
-    optimizerG = optim.Adam(netG.parameters(), lr=0.0002, betas=(0.5, 0.999))
-    optimizerD = optim.Adam(netD.parameters(), lr=0.0002, betas=(0.5, 0.999))
-
-    # Apply the weights_init function to both networks
-    netG.apply(weights_init)
-    netD.apply(weights_init)
-
-    # Load the MNIST dataset
-    train_loader, test_loader = load_Fashionmnist(batch_size=128, architecture='DCGAN')
-
-    # Train the DCGAN
-    netG.train()
-    netD.train()
-    dcgan_d_losses, dcgan_g_losses = train_dcgan(nz, train_loader, netG, netD, criterion, optimizerG, optimizerD, num_epochs=5)
-    plot_losses(dcgan_d_losses, dcgan_g_losses, 'DCGAN Losses (MNIST)')
-
-    # Generate images using DCGAN
-    netG.eval()
-    num_images_to_generate = 10
-    dcgan_generated_images = generate_images(netG, num_images_to_generate, nz)
-
-    # Show DCGAN generated images
-    show_images(dcgan_generated_images, "DCGAN Generated Images")
-
-
-def wgan():
-    # Initialize hyperparameters
-    nz = 100  # latent z vector
-    ngf = 64  # feature maps in generator
-    ndf = 64  # feature maps in discriminator
-    nc = 1  # number of channels in the output images (for MNIST dataset)
-
-    # Create the generator
-    netG = WGAN_Generator(nz, ngf, nc)
-
-    # Create the discriminator
-    netD = WGAN_Discriminator(nc, ndf)
-
-    # loss is: def wasserstein_loss(output, target)
-
-    # Setup Adam optimizers for both G and D
-    optimizerG = optim.Adam(netG.parameters(), lr=0.0002, betas=(0.5, 0.999))
-    optimizerD = optim.Adam(netD.parameters(), lr=0.0002, betas=(0.5, 0.999))
-
-    # Load the MNIST dataset
-    train_loader, test_loader = load_Fashionmnist(batch_size=128, architecture='WGAN')
-
-    # Train the WGAN
-    netG.train()
-    netD.train()
-    wgan_d_losses, wgan_g_losses = train_wgan(nz, train_loader, netG, netD, optimizerG, optimizerD, num_epochs=5)
-    plot_losses(wgan_d_losses, wgan_g_losses, 'WGAN Losses (Fashion MNIST)')
-
-    # Generate images using WGAN
-    netG.eval()
-    num_images_to_generate = 10
-    wgan_generated_images = generate_images(netG, num_images_to_generate, nz)
-
-    # Show WGAN generated images
-    show_images(wgan_generated_images, "WGAN Generated Images")
-
-def cifar_10():
-    for _ in CIFAR10_ARCHITECTURE:
-        if _ == 'DCGAN':
-            dcgan()
-
-        elif _ == 'WGAN':
-            wgan()
-
-
+    # start evaluating on test data
+    else:
+        model.evaluate(test_loader, gan_type.load_D, gan_type.load_G)
+        for i in range(50):
+            model.generate_latent_walk(i)
 
 def main():
-    seed_handler._set_seed(INIT_SEED)
+    # seed_handler._set_seed(INIT_SEED)
+    #
+    # vae_models = dict()
+    # svm_models = dict()
+    #
+    # params = {'lr': 2.0e-3,
+    #           'latent_epochs': 30,
+    #           'classifier_epochs': 10,
+    #           'batch_size': 64,
+    #           'optimizer': 'adam',
+    #           'lr_scheduler': {
+    #               'enable': True,
+    #               'gamma': 0.5,
+    #               'step': 5
+    #           }}
+    #
+    # if IS_OPTIMIZE_LR:
+    #     best_lrs = {}
+    #     for _labels in LABELS:
+    #         best_lrs[_labels] = optimize_lr(_labels, params.copy())
+    #         print(best_lrs)
+    #
+    #     return
+    #
+    # for _labels in LABELS:
+    #     vae_models[_labels], loss = fit_vae(num_labels=_labels,
+    #                                         is_save_tensorboard=True,
+    #                                         params=params)
+    #
+    #     model_utils.save_model(model=vae_models[_labels],
+    #                            output_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                     f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
+    #
+    #     vae_models[_labels] = model_utils.load_model(model_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                                          f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
+    #
+    #     svm_models[_labels], loss = fit_svm(num_labels=_labels,
+    #                                         kernel='rbf',
+    #                                         vae_model=vae_models[_labels])
+    #
+    #     model_utils.save_model(model=svm_models[_labels],
+    #                            output_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                     f"svm_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
+    #
+    #     print("\n")
 
-    vae_models = dict()
-    svm_models = dict()
+    dcgan = gan_type(model='DCGAN', is_train=True, download=True, dataroot='datasets/fashion-mnist',
+                     dataset='fashion-mnist', epochs=5,
+                     cuda=torch.cuda.is_available(), batch_size=64)
 
-    params = {'lr': 2.0e-3,
-              'latent_epochs': 30,
-              'classifier_epochs': 10,
-              'batch_size': 64,
-              'optimizer': 'adam',
-              'lr_scheduler': {
-                  'enable': True,
-                  'gamma': 0.5,
-                  'step': 5
-              }}
+    wgan = gan_type(model='WGAN', is_train=True, download=True, dataroot='datasets/fashion-mnist',
+                    dataset='fashion-mnist', epochs=5,
+                    cuda=torch.cuda.is_available(), batch_size=64)
 
-    if IS_OPTIMIZE_LR:
-        best_lrs = {}
-        for _labels in LABELS:
-            best_lrs[_labels] = optimize_lr(_labels, params.copy())
-            print(best_lrs)
+    gan(dcgan)
+    gan(wgan)
 
-        return
+    dcgan.is_train = wgan.is_train = False
 
-    for _labels in LABELS:
-        vae_models[_labels], loss = fit_vae(num_labels=_labels,
-                                            is_save_tensorboard=True,
-                                            params=params)
-
-        model_utils.save_model(model=vae_models[_labels],
-                               output_path=os.path.join(MODELS_OUTPUT_DIR,
-                                                        f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
-
-        vae_models[_labels] = model_utils.load_model(model_path=os.path.join(MODELS_OUTPUT_DIR,
-                                                                             f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
-
-        svm_models[_labels], loss = fit_svm(num_labels=_labels,
-                                            kernel='rbf',
-                                            vae_model=vae_models[_labels])
-
-        model_utils.save_model(model=svm_models[_labels],
-                               output_path=os.path.join(MODELS_OUTPUT_DIR,
-                                                        f"svm_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
-
-        print("\n")
-
-    cifar_10()
+    gan(dcgan)
+    gan(wgan)
 
     pass
 

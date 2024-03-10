@@ -347,6 +347,7 @@ def dcgan():
     #  to ``mean=0``, ``stdev=0.02``.
     netG.apply(weights_init)
 
+    print(netG)
 
     # Create the Discriminator
     netD = DCGAN_Discriminator(ngpu, nc, ndf).to(device)
@@ -358,6 +359,8 @@ def dcgan():
     # Apply the ``weights_init`` function to randomly initialize all weights
     # like this: ``to mean=0, stdev=0.2``.
     netD.apply(weights_init)
+
+    print(netD)
 
     # Initialize the ``BCELoss`` function
     criterion = nn.BCELoss()
@@ -394,7 +397,7 @@ def dcgan():
             ## Train with all-real batch
             netD.zero_grad()
             # Format batch
-            print(i, data)
+            print(data, data[0])
             real_cpu = data[0].to(device)
             b_size = real_cpu.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)

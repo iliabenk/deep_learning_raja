@@ -194,6 +194,7 @@ def WGAN_CP(args):
 def gan(gan_type):
     model = None
 
+
     if gan_type.model == 'DCGAN':
         model = DCGAN_MODEL(gan_type)
     elif gan_type.model == 'WGAN_CP':
@@ -207,11 +208,14 @@ def gan(gan_type):
     # feature_extraction = FeatureExtractionTest(train_loader, test_loader, args.cuda, args.batch_size)
 
     # Start model training
+    print(gan_type.is_train)
     if gan_type.is_train == 'True':
+        print('training')
         model.train(train_loader)
 
     # start evaluating on test data
     else:
+        print('evaluating')
         model.evaluate(test_loader, gan_type.load_D, gan_type.load_G)
         for i in range(50):
             model.generate_latent_walk(i)

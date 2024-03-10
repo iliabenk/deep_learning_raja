@@ -139,7 +139,7 @@ def extract_features(vae_model, data_loader, device):
 
     return np.array(features), np.array(labels)
 
-#Q4
+############## Q4 ###################
 
 
 # Initialize the weights of the networks
@@ -174,6 +174,17 @@ def load_Fashionmnist(batch_size=128, architecture='WGAN'):
     # Create dataloaders
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
+
+    # device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
+
+    # # Plot some training images
+    # real_batch = next(iter(train_loader))
+    # plt.figure(figsize=(8, 8))
+    # plt.axis("off")
+    # plt.title("Training Images")
+    # plt.imshow(
+    #     np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
+    # plt.show()
 
     return train_loader, test_loader
 

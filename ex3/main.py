@@ -312,15 +312,15 @@ def dcgan():
     # Batch size during training
     batch_size = 128
     # Spatial size of training images. All images will be resized to this
-    image_size = 64
+    image_size = 28
     # Number of color channels in the training images.
     nc = 1 #Gray
     # Size of z latent vector (i.e. size of generator input)
     nz = 100
     # Size of feature maps in generator
-    ngf = 32
+    ngf = 64
     # Size of feature maps in discriminator
-    ndf = 32
+    ndf = 64
     # Number of training epochs
     num_epochs = 5
     # Learning rate for optimizers
@@ -401,7 +401,7 @@ def dcgan():
             b_size = real_cpu.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
             # Forward pass real batch through D
-            print(real_cpu)
+            print(real_cpu.size())
             output = netD(real_cpu).view(-1)
             # Calculate loss on all-real batch
             errD_real = criterion(output, label)

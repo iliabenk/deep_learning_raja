@@ -66,38 +66,26 @@ class DCGAN_Generator(nn.Module):
         self.ngpu = ngpu
         self.main = nn.Sequential(
             # input is Z, going into a convolution
-            nn.ConvTranspose2d( nz, ngf * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 8),
-            nn.ReLU(True),
-            # state size. ``(ngf*8) x 4 x 4``
-            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(nz, ngf * 4, 4, 1, 0, bias=False),
             nn.BatchNorm2d(ngf * 4),
             nn.ReLU(True),
-            # state size. ``(ngf*4) x 8 x 8``
-            nn.ConvTranspose2d( ngf * 4, ngf * 2, 4, 2, 1, bias=False),
+            # state size. ``(ngf*4) x 3 x 3``
+            nn.ConvTranspose2d(ngf * 4, ngf * 2, 3, 2, 1, bias=False),
             nn.BatchNorm2d(ngf * 2),
             nn.ReLU(True),
-            # state size. ``(ngf*2) x 16 x 16``
-            nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
+            # state size. ``(ngf*2) x 7 x 7``
+            nn.ConvTranspose2d(ngf * 2, ngf, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ngf),
             nn.ReLU(True),
-            # state size. ``(ngf) x 32 x 32``
-            nn.ConvTranspose2d( ngf, nc, 4, 2, 1, bias=False),
+            # state size. ``(ngf) x 14 x 14``
+            nn.ConvTranspose2d(ngf, nc, 4, 2, 1, bias=False),
             nn.Tanh()
-            # state size. ``(nc) x 64 x 64``
+            # state size. ``(nc) x 28 x 28``
         )
 
     def forward(self, input):
         return self.main(input)
 
-
-class PrintLayer(nn.Module):
-    def __init__(self):
-        super(PrintLayer, self).__init__()
-
-    def forward(self, x):
-        print(x.shape)
-        return x
 
 # Define the Discriminator network
 class DCGAN_Discriminator(nn.Module):
@@ -105,28 +93,24 @@ class DCGAN_Discriminator(nn.Module):
         super(DCGAN_Discriminator, self).__init__()
         self.ngpu = ngpu
         self.main = nn.Sequential(
-            # input is ``(nc) x 64 x 64``
+            # input is ``(nc) x 28 x 28``
             nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. ``(ndf) x 32 x 32``
+            # state size. ``(ndf) x 14 x 14``
             nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. ``(ndf*2) x 16 x 16``
-            nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
+            # state size. ``(ndf*2) x 7 x 7``
+            nn.Conv2d(ndf * 2, ndf * 4, 3, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. ``(ndf*4) x 8 x 8``
-            nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 8),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. ``(ndf*8) x 4 x 4``
-            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            # state size. ``(ndf*4) x 3 x 3``
+            nn.Conv2d(ndf * 4, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
     def forward(self, input):
-        return self.main(input)
+        return self.main(input).view(-1, 1).squeeze(1)  # Flatten output to 1D
 
 #WGAN
 

@@ -91,6 +91,14 @@ class DCGAN_Generator(nn.Module):
         return self.main(input)
 
 
+class PrintLayer(nn.Module):
+    def __init__(self):
+        super(PrintLayer, self).__init__()
+
+    def forward(self, x):
+        print(x.shape)
+        return x
+
 # Define the Discriminator network
 class DCGAN_Discriminator(nn.Module):
     def __init__(self, ngpu, nc, ndf):
@@ -114,6 +122,7 @@ class DCGAN_Discriminator(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             # state size. ``(ndf*8) x 4 x 4``
             nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            PrintLayer(),
             nn.Sigmoid()
         )
 

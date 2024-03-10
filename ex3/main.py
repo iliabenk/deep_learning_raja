@@ -394,6 +394,7 @@ def dcgan():
             ## Train with all-real batch
             netD.zero_grad()
             # Format batch
+            print(i, data)
             real_cpu = data[0].to(device)
             b_size = real_cpu.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)

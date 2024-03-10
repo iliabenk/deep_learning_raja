@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets
 import matplotlib.pyplot as plt
 import numpy as np

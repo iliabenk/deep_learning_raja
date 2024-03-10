@@ -262,11 +262,11 @@ def main():
     #
     #     print("\n")
 
-    dcgan = gan_type(model='DCGAN', is_train=True, download=True, dataroot='datasets/fashion-mnist',
+    dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                      dataset='fashion-mnist', epochs=5,
                      cuda=torch.cuda.is_available(), batch_size=64)
 
-    wgan = gan_type(model='WGAN', is_train=True, download=True, dataroot='datasets/fashion-mnist',
+    wgan = gan_type(model='WGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                     dataset='fashion-mnist', epochs=5,
                     cuda=torch.cuda.is_available(), batch_size=64)
 

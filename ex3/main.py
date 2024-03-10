@@ -401,7 +401,8 @@ def dcgan():
             b_size = real_cpu.size(0)
             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
             # Forward pass real batch through D
-            output = netD(real_cpu)#.view(-1)
+            print(real_cpu)
+            output = netD(real_cpu).view(-1)
             # Calculate loss on all-real batch
             errD_real = criterion(output, label)
             # Calculate gradients for D in backward pass

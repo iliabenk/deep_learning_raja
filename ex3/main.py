@@ -263,6 +263,8 @@ def main():
     #
     #     print("\n")
 
+    if not torch.cuda.is_available():
+        print('no cuda fuck you')
     dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                      dataset='fashion-mnist', epochs=5, batch_size=64)
 

@@ -10,6 +10,12 @@ from configs import DATA_DIR, DATA_TYPE
 import torchvision.transforms as transforms
 import torch.nn as nn
 from torchvision import datasets
+from torch import nn
+from torch.autograd import Variable
+from torch.nn import functional as F
+import torch.utils.data
+from torchvision.models.inception import inception_v3
+from scipy.stats import entropy
 
 class SVM_Dataset(Dataset):
     def __init__(self, X, y):
@@ -173,7 +179,7 @@ class gan_type:
         self.dataroot = dataroot
         self.dataset = dataset
         self.epochs = epochs
-        self.cuda = 'True' if torch.cuda.is_available() else 'False'
+        self.cuda = torch.cuda.is_available()
         self.batch_size = batch_size
         self.load_D = 'discriminator.pkl'
         self.load_G = 'generator.pkl'

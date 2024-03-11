@@ -272,7 +272,7 @@ def main():
     dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                      dataset='fashion-mnist', epochs=5, batch_size=64)
 
-    wgan = gan_type(model='WGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
+    wgan = gan_type(model='WGAN_CP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                     dataset='fashion-mnist', epochs=5, batch_size=64)
 
     # gan(dcgan)

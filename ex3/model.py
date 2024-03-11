@@ -55,4 +55,3 @@ class VAE(nn.Module):
         reconstruction = self.decoder(z)
         return reconstruction, mean, logvar
 
-#Q4

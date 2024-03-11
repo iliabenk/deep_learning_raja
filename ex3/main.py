@@ -277,8 +277,8 @@ def main():
     print(f'WGAN configuration is:\n {wgan}\n\n\n')
 
     # Train
-    # gan(dcgan)
-    # gan(wgan)
+    gan(dcgan)
+    gan(wgan)
 
     # Evaluate
     dcgan.is_train = wgan.is_train = 'False'

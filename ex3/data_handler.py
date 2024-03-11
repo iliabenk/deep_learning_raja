@@ -172,14 +172,14 @@ def get_data_loader(args):
 
 
 class gan_type:
-    def __init__(self, model, is_train, download, dataroot, dataset, epochs, batch_size):
+    def __init__(self, model, is_train, download, dataroot, dataset, epochs,generator_iters, batch_size):
         self.model = model
         self.is_train = is_train
         self.download = download
         self.dataroot = dataroot
         self.dataset = dataset
         self.epochs = epochs
-        self.generator_iters = epochs
+        self.generator_iters = generator_iters
         self.cuda = torch.cuda.is_available()
         self.batch_size = batch_size
         self.load_D = 'discriminator.pkl'

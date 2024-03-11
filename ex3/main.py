@@ -278,7 +278,7 @@ def main():
 
     # Train
     # gan(dcgan)
-    gan(wgan)
+    # gan(wgan)
 
     # Evaluate
     dcgan.is_train = wgan.is_train = 'False'

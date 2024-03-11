@@ -344,6 +344,8 @@ class WGAN_GP(object):
         G_model_path = os.path.join(os.getcwd(), G_model_filename)
         self.D.load_state_dict(torch.load(D_model_path))
         self.G.load_state_dict(torch.load(G_model_path))
+        self.D.eval()
+        self.G.eval()
         print('Generator model loaded from {}.'.format(G_model_path))
         print('Discriminator model loaded from {}-'.format(D_model_path))
 

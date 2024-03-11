@@ -172,7 +172,7 @@ def get_data_loader(args):
 
 
 class gan_type:
-    def __init__(self, model, is_train, download, dataroot, dataset, epochs,generator_iters, batch_size):
+    def __init__(self, model, is_train, download, dataroot, dataset, epochs, batch_size):
         self.model = model
         self.is_train = is_train
         self.download = download

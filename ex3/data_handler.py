@@ -179,7 +179,7 @@ class gan_type:
         self.dataroot = dataroot
         self.dataset = dataset
         self.epochs = epochs
-        self.generator_iters = generator_iters
+        self.generator_iters = epochs*937
         self.cuda = torch.cuda.is_available()
         self.batch_size = batch_size
         self.load_D = 'discriminator.pkl'

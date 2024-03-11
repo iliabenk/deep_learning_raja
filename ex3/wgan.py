@@ -272,7 +272,8 @@ class WGAN_GP(object):
         self.save_model()
 
     def evaluate(self, test_loader, D_model_path, G_model_path):
-        self.load_model(D_model_path, G_model_path)
+        # self.load_model(D_model_path, G_model_path)
+        self.G.eval()
         z = self.get_torch_variable(torch.randn(self.batch_size, 100, 1, 1))
         samples = self.G(z)
         samples = samples.mul(0.5).add(0.5)
@@ -342,8 +343,8 @@ class WGAN_GP(object):
     def load_model(self, D_model_filename, G_model_filename):
         D_model_path = os.path.join(os.getcwd(), D_model_filename)
         G_model_path = os.path.join(os.getcwd(), G_model_filename)
-        self.D.load_state_dict(torch.load(D_model_path))
-        self.G.load_state_dict(torch.load(G_model_path))
+        self.D.load_state_dict(torch.load(D_model_path), strict=False)
+        self.G.load_state_dict(torch.load(G_model_path), strict=False)
         self.D.eval()
         self.G.eval()
         print('Generator model loaded from {}.'.format(G_model_path))

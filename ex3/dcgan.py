@@ -217,8 +217,9 @@ class DCGAN_MODEL(object):
         self.save_model()
 
     def evaluate(self, test_loader, D_model_path, G_model_path):
-        self.load_model(D_model_path, G_model_path)
-        z = Variable(torch.randn(self.batch_size, 100, 1, 1)).cuda(self.cuda_index)
+        # self.load_model(D_model_path, G_model_path)
+        self.G.eval()
+        z = Variable(torch.randn(self.batch_size, 100, 1, 1))#.cuda(self.cuda_index)
         samples = self.G(z)
         samples = samples.mul(0.5).add(0.5)
         samples = samples.data.cpu()
@@ -253,8 +254,8 @@ class DCGAN_MODEL(object):
     def load_model(self, D_model_filename, G_model_filename):
         D_model_path = os.path.join(os.getcwd(), D_model_filename)
         G_model_path = os.path.join(os.getcwd(), G_model_filename)
-        self.D.load_state_dict(torch.load(D_model_path))
-        self.G.load_state_dict(torch.load(G_model_path))
+        self.D.load_state_dict(torch.load(D_model_path), strict=False)
+        self.G.load_state_dict(torch.load(G_model_path), strict=False)
         self.D.eval()
         self.G.eval()
         print('Generator model loaded from {}.'.format(G_model_path))

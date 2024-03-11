@@ -207,16 +207,14 @@ def gan(gan_type):
     # feature_extraction = FeatureExtractionTest(train_loader, test_loader, args.cuda, args.batch_size)
 
     # Start model training
-    if gan_type.is_train == 'True':
-        print('training')
-        model.train(train_loader)
+    print('training')
+    model.train(train_loader)
 
     # start evaluating on test data
-    else:
-        print('evaluating')
-        model.evaluate(test_loader, gan_type.load_D, gan_type.load_G)
-        for i in range(50):
-            model.generate_latent_walk(i)
+    print('evaluating')
+    model.evaluate(test_loader, gan_type.load_D, gan_type.load_G)
+    for i in range(50):
+        model.generate_latent_walk(i)
 
 def main():
     # seed_handler._set_seed(INIT_SEED)
@@ -277,8 +275,8 @@ def main():
     print(f'WGAN configuration is:\n {wgan}\n\n\n')
 
     # Train
-    gan(dcgan)
-    gan(wgan)
+    # gan(dcgan)
+    # gan(wgan)
 
     # Evaluate
     dcgan.is_train = wgan.is_train = 'False'

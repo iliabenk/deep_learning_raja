@@ -186,6 +186,9 @@ class gan_type:
         self.load_G = 'generator.pkl'
         self.channels = 1
 
+    def print_gan(self):
+        attrs = vars(self)
+        print(', '.join("%s: %s" % item for item in attrs.items()))
 
 def get_inception_score(imgs, cuda=True, batch_size=32, resize=False, splits=1):
     """

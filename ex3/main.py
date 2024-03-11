@@ -194,8 +194,6 @@ def WGAN_CP(args):
 
 def gan(gan_type):
     model = None
-
-
     if gan_type.model == 'DCGAN':
         model = DCGAN_MODEL(gan_type)
     elif gan_type.model == 'WGAN_GP':
@@ -209,7 +207,6 @@ def gan(gan_type):
     # feature_extraction = FeatureExtractionTest(train_loader, test_loader, args.cuda, args.batch_size)
 
     # Start model training
-    print(gan_type.is_train)
     if gan_type.is_train == 'True':
         print('training')
         model.train(train_loader)
@@ -269,7 +266,7 @@ def main():
     #     print("\n")
 
     if not torch.cuda.is_available():
-        print('no cuda fuck you')
+        print('no cuda')
     dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                      dataset='fashion-mnist', epochs=5, batch_size=64)
 

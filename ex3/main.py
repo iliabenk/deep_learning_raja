@@ -276,11 +276,12 @@ def main():
     wgan = gan_type(model='WGAN_GP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                     dataset='fashion-mnist', epochs=5, batch_size=64)
 
-    # gan(dcgan)
-    # gan(wgan)
+    # Train
+    gan(dcgan)
+    gan(wgan)
 
+    # Evaluate
     dcgan.is_train = wgan.is_train = 'False'
-
     gan(dcgan)
     gan(wgan)
 

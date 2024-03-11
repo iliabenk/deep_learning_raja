@@ -177,7 +177,7 @@ class DCGAN_MODEL(object):
                 generator_iter += 1
 
 
-                if generator_iter % 1000 == 0:
+                if generator_iter % 100 == 0:
                     print('Epoch-{}'.format(epoch + 1))
                     self.save_model()
 

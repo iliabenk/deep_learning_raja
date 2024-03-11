@@ -273,6 +273,9 @@ def main():
     wgan = gan_type(model='WGAN_GP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
                     dataset='fashion-mnist', epochs=5, generator_iters=800, batch_size=64)
 
+    print(f'DCGAN configuration is:\n {dcgan}\n\n\n')
+    print(f'WGAN configuration is:\n {wgan}\n\n\n')
+
     # Train
     gan(dcgan)
     gan(wgan)

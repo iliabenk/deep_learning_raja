@@ -17,7 +17,7 @@ import torch.optim as optim
 
 from configs import LABELS, INIT_SEED, TENSORBOARD_DIR, MODELS_OUTPUT_DIR, IS_OPTIMIZE_LR, DATA_TYPE
 from dcgan import DCGAN_MODEL
-from ex3.wgan import WGAN_GP
+from wgan import WGAN_GP
 from utils import seed_handler, model_utils
 from model import VAE
 from data_handler import load_data, transform_func, extract_features, get_data_loader, gan_type

@@ -274,7 +274,7 @@ def main():
                     dataset='fashion-mnist', epochs=5, generator_iters=4000, batch_size=64)
 
     # Train
-    # gan(dcgan)
+    gan(dcgan)
     gan(wgan)
 
     # Evaluate

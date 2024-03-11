@@ -226,8 +226,8 @@ class WGAN_GP(object):
                 # inception_score = get_inception_score(new_sample_list, cuda=True, batch_size=32,
                 #                                       resize=True, splits=10)
 
-                if not os.path.exists('training_result_images/'):
-                    os.makedirs('training_result_images/')
+                if not os.path.exists('wgan_training_result_images/'):
+                    os.makedirs('wgan_training_result_images/')
 
                 # Denormalize images and save them in grid 8x8
                 z = self.get_torch_variable(torch.randn(800, 100, 1, 1))
@@ -235,7 +235,7 @@ class WGAN_GP(object):
                 samples = samples.mul(0.5).add(0.5)
                 samples = samples.data.cpu()[:64]
                 grid = utils.make_grid(samples)
-                utils.save_image(grid, 'training_result_images/img_generatori_iter_{}.png'.format(str(g_iter).zfill(3)))
+                utils.save_image(grid, 'wgan_training_result_images/img_generator_iter_{}.png'.format(str(g_iter).zfill(3)))
 
                 # Testing
                 time = t.time() - self.t_begin

@@ -181,8 +181,8 @@ class DCGAN_MODEL(object):
                     print('Epoch-{}'.format(epoch + 1))
                     self.save_model()
 
-                    if not os.path.exists('training_result_images/'):
-                        os.makedirs('training_result_images/')
+                    if not os.path.exists('dcgan_training_result_images/'):
+                        os.makedirs('dcgan_training_result_images/')
 
                     # Denormalize images and save them in grid 8x8
                     z = Variable(torch.randn(800, 100, 1, 1)).cuda(self.cuda_index)
@@ -190,7 +190,7 @@ class DCGAN_MODEL(object):
                     samples = samples.mul(0.5).add(0.5)
                     samples = samples.data.cpu()[:64]
                     grid = utils.make_grid(samples)
-                    utils.save_image(grid, 'training_result_images/img_generatori_iter_{}.png'.format(str(generator_iter).zfill(3)))
+                    utils.save_image(grid, 'dcgan_training_result_images/img_generator_iter_{}.png'.format(str(generator_iter).zfill(3)))
 
                     time = t.time() - self.t_begin
                     #print("Inception score: {}".format(inception_score))

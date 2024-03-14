@@ -285,10 +285,10 @@ def main():
     if not torch.cuda.is_available():
         print('no cuda')
     dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                     dataset='fashion-mnist', epochs=1, batch_size=64)
+                     dataset='fashion-mnist', epochs=5, batch_size=64)
 
     wgan = gan_type(model='WGAN_GP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                    dataset='fashion-mnist', epochs=1, batch_size=64)
+                    dataset='fashion-mnist', epochs=5, batch_size=64)
 
     dcgan.print_gan()
     wgan.print_gan()

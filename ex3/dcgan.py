@@ -264,9 +264,9 @@ class DCGAN_MODEL(object):
         return x.data.cpu().numpy()
 
     def save_model(self):
-        torch.save(self.G.state_dict(), './generator.pkl')
-        torch.save(self.D.state_dict(), './discriminator.pkl')
-        print('Models save to ./generator.pkl & ./discriminator.pkl ')
+        torch.save(self.G.state_dict(), './dcgan_generator.pkl')
+        torch.save(self.D.state_dict(), './dcgan_discriminator.pkl')
+        print('Models save to ./dcgan_generator.pkl & ./dcgan_discriminator.pkl ')
 
     def load_model(self, D_model_filename, G_model_filename):
         D_model_path = os.path.join(os.getcwd(), D_model_filename)

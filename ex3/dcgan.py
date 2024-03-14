@@ -185,7 +185,11 @@ class DCGAN_MODEL(object):
                         os.makedirs('dcgan_training_result_images/')
 
                     # Denormalize images and save them in grid 8x8
-                    z = Variable(torch.randn(800, 100, 1, 1))#.cuda(self.cuda_index)
+                    if self.cuda:
+                        z = Variable(torch.randn(800, 100, 1, 1)).cuda(self.cuda_index)
+                    else:
+                        z = Variable(torch.randn(800, 100, 1, 1))
+
                     samples = self.G(z)
                     samples = samples.mul(0.5).add(0.5)
                     samples = samples.data.cpu()[:64]
@@ -206,7 +210,11 @@ class DCGAN_MODEL(object):
                     print("Epoch: [%2d] [%4d/%4d] D_loss: %.8f, G_loss: %.8f" %
                           ((epoch + 1), (i + 1), train_loader.dataset.__len__() // self.batch_size, d_loss.data, g_loss.data))
 
-                    z = Variable(torch.randn(self.batch_size, 100, 1, 1))#.cuda(self.cuda_index)
+                    if self.cuda:
+                        z = Variable(torch.randn(self.batch_size, 100, 1, 1)).cuda(self.cuda_index)
+                    else:
+                        z = Variable(torch.randn(self.batch_size, 100, 1, 1))
+
 
 
         self.t_end = t.time()
@@ -219,7 +227,11 @@ class DCGAN_MODEL(object):
     def evaluate(self, test_loader, D_model_path, G_model_path):
         # self.load_model(D_model_path, G_model_path)
         self.G.eval()
-        z = Variable(torch.randn(self.batch_size, 100, 1, 1))#.cuda(self.cuda_index)
+        if self.cuda:
+            z = Variable(torch.randn(self.batch_size, 100, 1, 1)).cuda(self.cuda_index)
+        else:
+            z = Variable(torch.randn(self.batch_size, 100, 1, 1))
+
         samples = self.G(z)
         samples = samples.mul(0.5).add(0.5)
         samples = samples.data.cpu()

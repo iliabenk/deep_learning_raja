@@ -1,4 +1,4 @@
-
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
@@ -86,6 +86,8 @@ class DCGAN_MODEL(object):
 
         # binary cross entropy loss and optimizer
         self.loss = nn.BCELoss()
+        self.D_losses = []
+        self.G_losses = []
 
         self.cuda = False
         self.cuda_index = 0
@@ -100,6 +102,7 @@ class DCGAN_MODEL(object):
         self.batch_size = args.batch_size
 
         self.number_of_images = 10
+        self.number_of_iterations = 0
 
     # cuda support
     def check_cuda(self, cuda_flag=False):
@@ -176,7 +179,6 @@ class DCGAN_MODEL(object):
                 self.g_optimizer.step()
                 generator_iter += 1
 
-
                 if generator_iter % 100 == 0:
                     print('Epoch-{}'.format(epoch + 1))
                     self.save_model()
@@ -205,7 +207,8 @@ class DCGAN_MODEL(object):
                     #output = str(generator_iter) + " " + str(time) + " " + str(inception_score[0]) + "\n"
                     #self.file.write(output)
 
-
+                self.D_losses.append(d_loss.data)
+                self.G_losses.append(g_loss.data)
                 if ((i + 1) % 100) == 0:
                     print("Epoch: [%2d] [%4d/%4d] D_loss: %.8f, G_loss: %.8f" %
                           ((epoch + 1), (i + 1), train_loader.dataset.__len__() // self.batch_size, d_loss.data, g_loss.data))
@@ -217,11 +220,13 @@ class DCGAN_MODEL(object):
 
 
 
+
         self.t_end = t.time()
         print('Time of training-{}'.format((self.t_end - self.t_begin)))
         #self.file.close()
 
         # Save the trained parameters
+        self.number_of_iterations = generator_iter
         self.save_model()
 
     def evaluate(self, test_loader, D_model_path, G_model_path):

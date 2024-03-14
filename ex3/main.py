@@ -187,9 +187,26 @@ def optimize_lr(labels, params):
 
 
 # Q4
+def print_loss_per_iter(dcgan_model, wgan_model):
+    # Plot generator losses
+    plt.figure(figsize=(10, 5))
+    plt.plot(np.arange(len(dcgan_model.G_losses)), np.array(dcgan_model.G_losses), label='DCGAN Generator Loss', color='blue')
+    plt.plot(np.arange(len(wgan_model.G_losses)), np.array(wgan_model.G_losses), label='WGAN Generator Loss', color='red')
+    plt.title('Generator Loss Comparison')
+    plt.xlabel('Iterations')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig('generator_loss_comparison.png')
 
-def WGAN_CP(args):
-    pass
+    # Plot discriminator losses
+    plt.figure(figsize=(10, 5))
+    plt.plot(np.arange(len(dcgan_model.D_losses)), np.array(dcgan_model.D_losses), label='DCGAN Discriminator Loss', color='blue')
+    plt.plot(np.arange(len(wgan_model.D_losses)), np.array(wgan_model.D_losses), label='WGAN Discriminator Loss', color='red')
+    plt.title('Discriminator Loss Comparison')
+    plt.xlabel('Iterations')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig('discriminator_loss_comparison.png')
 
 
 def gan(gan_type):
@@ -215,6 +232,8 @@ def gan(gan_type):
     model.evaluate(test_loader, gan_type.load_D, gan_type.load_G)
     for i in range(50):
         model.generate_latent_walk(i)
+
+    return model
 
 def main():
     # seed_handler._set_seed(INIT_SEED)
@@ -266,17 +285,19 @@ def main():
     if not torch.cuda.is_available():
         print('no cuda')
     dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                     dataset='fashion-mnist', epochs=5, batch_size=64)
+                     dataset='fashion-mnist', epochs=1, batch_size=64)
 
     wgan = gan_type(model='WGAN_GP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                    dataset='fashion-mnist', epochs=5, batch_size=64)
+                    dataset='fashion-mnist', epochs=1, batch_size=64)
 
     dcgan.print_gan()
     wgan.print_gan()
 
     # Train and evaluate
-    gan(dcgan)
-    gan(wgan)
+    dcgan_model = gan(dcgan)
+    wgan_model = gan(wgan)
+
+    print_loss_per_iter(dcgan_model, wgan_model)
     pass
 
 

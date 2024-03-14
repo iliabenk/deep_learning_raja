@@ -1,3 +1,6 @@
+import json
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -109,6 +112,9 @@ class WGAN_GP(object):
         self.d_optimizer = optim.Adam(self.D.parameters(), lr=self.learning_rate, betas=(self.b1, self.b2))
         self.g_optimizer = optim.Adam(self.G.parameters(), lr=self.learning_rate, betas=(self.b1, self.b2))
 
+        self.D_losses = []
+        self.G_losses = []
+
         self.number_of_images = 10
 
         self.generator_iters = args.generator_iters
@@ -152,6 +158,7 @@ class WGAN_GP(object):
 
             d_loss_real = 0
             d_loss_fake = 0
+            d_loss = 0
             Wasserstein_D = 0
             # Train Dicriminator forward-loss-backward-update self.critic_iter times while 1 Generator forward-loss-backward-update
             for d_iter in range(self.critic_iter):
@@ -205,26 +212,12 @@ class WGAN_GP(object):
             g_loss.backward(mone)
             g_cost = -g_loss
             self.g_optimizer.step()
+            self.D_losses.append(abs(d_loss.data))
+            self.G_losses.append(abs(g_loss.data))
             print(f'Generator iteration: {g_iter}/{self.generator_iters}, g_loss: {g_loss}')
             # Saving model and sampling images every 1000th generator iterations
             if (g_iter) % SAVE_PER_TIMES == 0:
                 self.save_model()
-                # # Workaround because graphic card memory can't store more than 830 examples in memory for generating image
-                # # Therefore doing loop and generating 800 examples and stacking into list of samples to get 8000 generated images
-                # # This way Inception score is more correct since there are different generated examples from every class of Inception model
-                # sample_list = []
-                # for i in range(125):
-                #     samples  = self.data.__next__()
-                # #     z = Variable(torch.randn(800, 100, 1, 1)).cuda(self.cuda_index)
-                # #     samples = self.G(z)
-                #     sample_list.append(samples.data.cpu().numpy())
-                # #
-                # # # Flattening list of list into one list
-                # new_sample_list = list(chain.from_iterable(sample_list))
-                # print("Calculating Inception Score over 8k generated images")
-                # # # Feeding list of numpy arrays
-                # inception_score = get_inception_score(new_sample_list, cuda=True, batch_size=32,
-                #                                       resize=True, splits=10)
 
                 if not os.path.exists('wgan_training_result_images/'):
                     os.makedirs('wgan_training_result_images/')

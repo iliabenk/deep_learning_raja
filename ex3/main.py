@@ -208,6 +208,11 @@ def print_loss_per_iter(dcgan_model, wgan_model):
     plt.legend()
     plt.savefig('discriminator_loss_comparison.png')
 
+    np.savetxt("DCGAN_Generator_Loss.csv", dcgan_model.G_losses, delimiter=",")
+    np.savetxt("WGAN_Generator_Loss.csv", wgan_model.G_losses, delimiter=",")
+    np.savetxt("DCGAN_Discriminator_Loss.csv", dcgan_model.D_losses, delimiter=",")
+    np.savetxt("WGAN_Discriminator_Loss.csv", wgan_model.D_losses, delimiter=",")
+
 
 def gan(gan_type):
     model = None

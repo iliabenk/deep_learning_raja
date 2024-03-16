@@ -224,6 +224,7 @@ def gan(gan_type):
     # feature_extraction = FeatureExtractionTest(train_loader, test_loader, args.cuda, args.batch_size)
 
     # Start model training
+    # if gan_type.is_train:
     print('training')
     model.train(train_loader)
 
@@ -236,59 +237,88 @@ def gan(gan_type):
     return model
 
 def main():
-    # seed_handler._set_seed(INIT_SEED)
+    # import argparse
     #
-    # vae_models = dict()
-    # svm_models = dict()
+    # # Initialize parser
+    # parser = argparse.ArgumentParser()
     #
-    # params = {'lr': 2.0e-3,
-    #           'latent_epochs': 30,
-    #           'classifier_epochs': 10,
-    #           'batch_size': 64,
-    #           'optimizer': 'adam',
-    #           'lr_scheduler': {
-    #               'enable': True,
-    #               'gamma': 0.5,
-    #               'step': 5
-    #           }}
+    # # Adding optional argument
+    # parser.add_argument("-q", "--Question", help="which Question")
+    # parser.add_argument("-t", "--Train", help="train mode")
     #
-    # if IS_OPTIMIZE_LR:
-    #     best_lrs = {}
+    # # Read arguments from command line
+    # args = parser.parse_args()
+    #
+    # Questions = []
+    # train = 'true'
+    # if args.Question:
+    #     string = args.Question
+    #
+    #     for letter in string:
+    #         Questions.append(letter)
+    #     print(f"Displaying Question as: {Questions}")
+    # if args.Train:
+    #     train = args.Train
+    #     print("Displaying Train as: % s" % args.Question)
+    #
+    # if '3' in Questions:
+    #     seed_handler._set_seed(INIT_SEED)
+    #
+    #     vae_models = dict()
+    #     svm_models = dict()
+    #
+    #     params = {'lr': 2.0e-3,
+    #               'latent_epochs': 30,
+    #               'classifier_epochs': 10,
+    #               'batch_size': 64,
+    #               'optimizer': 'adam',
+    #               'lr_scheduler': {
+    #                   'enable': True,
+    #                   'gamma': 0.5,
+    #                   'step': 5
+    #               }}
+    #
+    #     if IS_OPTIMIZE_LR:
+    #         best_lrs = {}
+    #         for _labels in LABELS:
+    #             best_lrs[_labels] = optimize_lr(_labels, params.copy())
+    #             print(best_lrs)
+    #
+    #         return
+    #
     #     for _labels in LABELS:
-    #         best_lrs[_labels] = optimize_lr(_labels, params.copy())
-    #         print(best_lrs)
+    #         vae_models[_labels], loss = fit_vae(num_labels=_labels,
+    #                                             is_save_tensorboard=True,
+    #                                             params=params)
     #
-    #     return
+    #         model_utils.save_model(model=vae_models[_labels],
+    #                                output_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                         f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
     #
-    # for _labels in LABELS:
-    #     vae_models[_labels], loss = fit_vae(num_labels=_labels,
-    #                                         is_save_tensorboard=True,
-    #                                         params=params)
+    #         vae_models[_labels] = model_utils.load_model(model_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                                              f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
     #
-    #     model_utils.save_model(model=vae_models[_labels],
-    #                            output_path=os.path.join(MODELS_OUTPUT_DIR,
-    #                                                     f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
+    #         svm_models[_labels], loss = fit_svm(num_labels=_labels,
+    #                                             kernel='rbf',
+    #                                             vae_model=vae_models[_labels])
     #
-    #     vae_models[_labels] = model_utils.load_model(model_path=os.path.join(MODELS_OUTPUT_DIR,
-    #                                                                          f"vae_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
+    #         model_utils.save_model(model=svm_models[_labels],
+    #                                output_path=os.path.join(MODELS_OUTPUT_DIR,
+    #                                                         f"svm_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
     #
-    #     svm_models[_labels], loss = fit_svm(num_labels=_labels,
-    #                                         kernel='rbf',
-    #                                         vae_model=vae_models[_labels])
-    #
-    #     model_utils.save_model(model=svm_models[_labels],
-    #                            output_path=os.path.join(MODELS_OUTPUT_DIR,
-    #                                                     f"svm_{_labels}_labels_datatype_{DATA_TYPE}_model.pth"))
-    #
-    #     print("\n")
+    #         print("\n")
 
+    # if '4' in Questions:
     if not torch.cuda.is_available():
         print('no cuda')
-    dcgan = gan_type(model='DCGAN', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                     dataset='fashion-mnist', epochs=5, batch_size=64)
+    is_train = True#'true' in train.lower()
+    dcgan = gan_type(model='DCGAN', is_train=is_train, download='True', dataroot='datasets/fashion-mnist',
+                     dataset='fashion-mnist', epochs=5, batch_size=64,
+                     load_D='dcgan_discriminator.pkl', load_G='dcgan_generator.pkl')
 
-    wgan = gan_type(model='WGAN_GP', is_train='True', download='True', dataroot='datasets/fashion-mnist',
-                    dataset='fashion-mnist', epochs=5, batch_size=64)
+    wgan = gan_type(model='WGAN_GP', is_train=is_train, download='True', dataroot='datasets/fashion-mnist',
+                    dataset='fashion-mnist', epochs=5, batch_size=64,
+                    load_D='wgan_discriminator.pkl', load_G='wgan_generator.pkl')
 
     dcgan.print_gan()
     wgan.print_gan()
@@ -297,7 +327,9 @@ def main():
     dcgan_model = gan(dcgan)
     wgan_model = gan(wgan)
 
+    # if is_train:
     print_loss_per_iter(dcgan_model, wgan_model)
+    print('done')
     pass
 
 

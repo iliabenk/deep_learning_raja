@@ -128,7 +128,7 @@ class WGAN_GP(object):
             return Variable(arg)
 
     def check_cuda(self, cuda_flag=False):
-        print(cuda_flag)
+        print(f'cuda flag is {cuda_flag}')
         if cuda_flag:
             self.cuda_index = 0
             self.cuda = True
@@ -265,15 +265,20 @@ class WGAN_GP(object):
         self.save_model()
 
     def evaluate(self, test_loader, D_model_path, G_model_path):
-        # self.load_model(D_model_path, G_model_path)
+        self.load_model(D_model_path, G_model_path)
         self.G.eval()
         z = self.get_torch_variable(torch.randn(self.batch_size, 100, 1, 1))
         samples = self.G(z)
         samples = samples.mul(0.5).add(0.5)
         samples = samples.data.cpu()
         grid = utils.make_grid(samples)
-        print("Grid of 8x8 images saved to 'dgan_model_image.png'.")
-        utils.save_image(grid, 'dgan_model_image.png')
+        print("Grid of 8x8 images saved to 'wgan_model_image.png'.")
+        utils.save_image(grid, 'wgan_model_image.png')
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+        img = mpimg.imread('dcgan_model_image.png')
+        imgplot = plt.imshow(img)
+        plt.show()
 
     def calculate_gradient_penalty(self, real_images, fake_images):
         eta = torch.FloatTensor(self.batch_size, 1, 1, 1).uniform_(0, 1)
@@ -336,8 +341,8 @@ class WGAN_GP(object):
     def load_model(self, D_model_filename, G_model_filename):
         D_model_path = os.path.join(os.getcwd(), D_model_filename)
         G_model_path = os.path.join(os.getcwd(), G_model_filename)
-        self.D.load_state_dict(torch.load(D_model_path), strict=False)
-        self.G.load_state_dict(torch.load(G_model_path), strict=False)
+        self.D.load_state_dict(torch.load(D_model_path, map_location=torch.device('cpu')), strict=False)
+        self.G.load_state_dict(torch.load(G_model_path, map_location=torch.device('cpu')), strict=False)
         self.D.eval()
         self.G.eval()
         print('Generator model loaded from {}.'.format(G_model_path))
@@ -349,8 +354,8 @@ class WGAN_GP(object):
                 yield images
 
     def generate_latent_walk(self, number):
-        if not os.path.exists('interpolated_images/'):
-            os.makedirs('interpolated_images/')
+        if not os.path.exists('wgan_interpolated_images/'):
+            os.makedirs('wgan_interpolated_images/')
 
         number_int = 10
         # interpolate between twe noise(z1, z2).
@@ -374,5 +379,5 @@ class WGAN_GP(object):
             images.append(fake_im.view(self.C, 32, 32).data.cpu())
 
         grid = utils.make_grid(images, nrow=number_int)
-        utils.save_image(grid, 'interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
-        print("Saved interpolated images.")
+        utils.save_image(grid, 'wgan_interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
+        print("Saved wgan_interpolated images.")

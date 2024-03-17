@@ -106,6 +106,7 @@ class DCGAN_MODEL(object):
 
     # cuda support
     def check_cuda(self, cuda_flag=False):
+        print(f'cuda flag is {cuda_flag}')
         if cuda_flag:
             self.cuda = True
             self.D.cuda(self.cuda_index)
@@ -230,7 +231,7 @@ class DCGAN_MODEL(object):
         self.save_model()
 
     def evaluate(self, test_loader, D_model_path, G_model_path):
-        # self.load_model(D_model_path, G_model_path)
+        self.load_model(D_model_path, G_model_path)
         self.G.eval()
         if self.cuda:
             z = Variable(torch.randn(self.batch_size, 100, 1, 1)).cuda(self.cuda_index)
@@ -241,8 +242,13 @@ class DCGAN_MODEL(object):
         samples = samples.mul(0.5).add(0.5)
         samples = samples.data.cpu()
         grid = utils.make_grid(samples)
-        print("Grid of 8x8 images saved to 'dgan_model_image.png'.")
-        utils.save_image(grid, 'dgan_model_image.png')
+        print("Grid of 8x8 images saved to 'dcgan_model_image.png'.")
+        utils.save_image(grid, 'dcgan_model_image.png')
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+        img = mpimg.imread('dcgan_model_image.png')
+        imgplot = plt.imshow(img)
+        plt.show()
 
     def real_images(self, images, number_of_images):
         if (self.C == 3):
@@ -279,8 +285,8 @@ class DCGAN_MODEL(object):
         print('Discriminator model loaded from {}-'.format(D_model_path))
 
     def generate_latent_walk(self, number):
-        if not os.path.exists('interpolated_images/'):
-            os.makedirs('interpolated_images/')
+        if not os.path.exists('dcgan_interpolated_images/'):
+            os.makedirs('dcgan_interpolated_images/')
 
         # Interpolate between twe noise(z1, z2) with number_int steps between
         number_int = 10
@@ -301,8 +307,9 @@ class DCGAN_MODEL(object):
             alpha += alpha
             fake_im = self.G(z_intp)
             fake_im = fake_im.mul(0.5).add(0.5) #denormalize
-            images.append(fake_im.view(self.C,32,32).data.cpu())
+            images.append(fake_im.view(self.C, 32, 32).data.cpu())
 
-        grid = utils.make_grid(images, nrow=number_int )
-        utils.save_image(grid, 'interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
-        print("Saved interpolated images to interpolated_images/interpolated_{}.".format(str(number).zfill(3)))
+        grid = utils.make_grid(images, nrow=number_int)
+        utils.save_image(grid, 'dcgan_interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
+        print("Saved interpolated images to dcgan_interpolated_images/interpolated_{}.".format(str(number).zfill(3)))
+

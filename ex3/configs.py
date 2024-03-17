@@ -11,7 +11,3 @@ IS_OPTIMIZE_LR = False
 OUTPUTS_DIR = 'results'
 MODELS_OUTPUT_DIR = 'results/models'
 TENSORBOARD_DIR = 'results/tensor_board'
-
-#Q4
-
-CIFAR10_ARCHITECTURE = ['DCGAN', 'WGAN']

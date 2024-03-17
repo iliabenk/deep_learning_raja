@@ -246,7 +246,7 @@ class DCGAN_MODEL(object):
         grid = utils.make_grid(samples)
         print("Grid of 8x8 images saved to 'dcgan_model_image.png'.")
         utils.save_image(grid, 'dcgan_model_image.png')
-
+        print('hiiiiiiiiiiiii')
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         img = mpimg.imread('dcgan_model_image.png')

@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -244,11 +246,43 @@ class DCGAN_MODEL(object):
         grid = utils.make_grid(samples)
         print("Grid of 8x8 images saved to 'dcgan_model_image.png'.")
         utils.save_image(grid, 'dcgan_model_image.png')
+
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         img = mpimg.imread('dcgan_model_image.png')
         imgplot = plt.imshow(img)
         plt.show()
+
+        labels = random.sample(range(len(test_loader.dataset.classes)), 2)
+
+        dcgan_images = []
+        real_images = []
+
+        for batch, (images, targets) in enumerate(test_loader):
+            for image, target in zip(images, targets):
+                if target.item() in labels:
+                    z_dcgan = torch.randn(1, 100, 1, 1)
+                    dcgan_image = self.G(z_dcgan).detach().squeeze().numpy()
+                    dcgan_images.append(dcgan_image)
+
+                # Select real images
+                real_images.append(image.numpy())
+
+                if len(dcgan_images) >= 2:
+                    break
+
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(6, 6))
+        ax = axes.ravel()
+        ax[0].imshow(dcgan_images[0])
+        ax[0].set_title(f'dcgan image 1 of labels {labels}'), ax[0].axis('off')
+        ax[1].imshow(dcgan_images[1])
+        ax[1].set_title(f'dcgan image 2 of labels {labels}'), ax[1].axis('off')
+        ax[2].imshow(dcgan_images[2])
+        ax[2].set_title(f'dcgan image 1 of labels {labels}'), ax[2].axis('off')
+        ax[3].imshow(dcgan_images[3])
+        ax[3].set_title(f'dcgan image 2 of labels {labels}'), ax[3].axis('off')
+        plt.tight_layout()
+        return dcgan_images, real_images
 
     def real_images(self, images, number_of_images):
         if (self.C == 3):

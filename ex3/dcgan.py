@@ -253,6 +253,17 @@ class DCGAN_MODEL(object):
         imgplot = plt.imshow(img)
         plt.show()
 
+        discriminator_loss_comparison = plt.imread('discriminator_loss_comparison.png')
+        generator_loss_comparison = plt.imread('generator_loss_comparison.png')
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 20))
+        ax = axes.ravel()
+        ax[0].imshow(discriminator_loss_comparison)
+        ax[0].set_title('discriminator loss comparison'), ax[0].axis('off')
+        ax[1].imshow(generator_loss_comparison)
+        ax[1].set_title('generator loss comparison'), ax[1].axis('off')
+        plt.tight_layout()
+        plt.show()
+
         labels = random.sample(range(len(test_loader.dataset.classes)), 2)
 
         dcgan_images = []

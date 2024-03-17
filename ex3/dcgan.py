@@ -282,7 +282,7 @@ class DCGAN_MODEL(object):
                 if len(dcgan_images) >= 2:
                     break
 
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(4, 4))
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(2, 2))
         ax = axes.ravel()
         ax[0].imshow(dcgan_images[0])
         ax[0].set_title(f'dcgan image 1 of labels {labels}'), ax[0].axis('off')

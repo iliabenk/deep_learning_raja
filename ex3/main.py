@@ -266,7 +266,7 @@ def main():
 
     if args.Train:
         train = args.Train
-        print("Displaying Train as: % s" % args.Question)
+        print("Displaying Train as: % s" % args.Train)
 
     if '3' in Questions:
         seed_handler._set_seed(INIT_SEED)

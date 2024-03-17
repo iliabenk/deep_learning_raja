@@ -300,7 +300,7 @@ class WGAN_GP(object):
                 if len(wgan_images) >= 2:
                     break
 
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 20))
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(4, 4))
         ax = axes.ravel()
         ax[0].imshow(wgan_images[0])
         ax[0].set_title(f'wgan image 1 of labels {labels}'), ax[0].axis('off')

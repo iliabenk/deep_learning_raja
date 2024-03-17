@@ -255,7 +255,7 @@ class DCGAN_MODEL(object):
 
         discriminator_loss_comparison = plt.imread('discriminator_loss_comparison.png')
         generator_loss_comparison = plt.imread('generator_loss_comparison.png')
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15, 20))
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(4, 4))
         ax = axes.ravel()
         ax[0].imshow(discriminator_loss_comparison)
         ax[0].set_title('discriminator loss comparison'), ax[0].axis('off')

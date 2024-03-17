@@ -311,8 +311,8 @@ class DCGAN_MODEL(object):
     def load_model(self, D_model_filename, G_model_filename):
         D_model_path = os.path.join(os.getcwd(), D_model_filename)
         G_model_path = os.path.join(os.getcwd(), G_model_filename)
-        self.D.load_state_dict(torch.load(D_model_path), strict=False)
-        self.G.load_state_dict(torch.load(G_model_path), strict=False)
+        self.D.load_state_dict(torch.load(D_model_path, map_location=torch.device('cpu')), strict=False)
+        self.G.load_state_dict(torch.load(G_model_path, map_location=torch.device('cpu')), strict=False)
         self.D.eval()
         self.G.eval()
         print('Generator model loaded from {}.'.format(G_model_path))

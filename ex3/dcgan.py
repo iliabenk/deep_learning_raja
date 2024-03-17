@@ -282,6 +282,7 @@ class DCGAN_MODEL(object):
         ax[3].imshow(dcgan_images[3])
         ax[3].set_title(f'dcgan image 2 of labels {labels}'), ax[3].axis('off')
         plt.tight_layout()
+        plt.show()
         return dcgan_images, real_images
 
     def real_images(self, images, number_of_images):

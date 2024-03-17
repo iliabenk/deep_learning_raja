@@ -1,4 +1,5 @@
 import json
+import random
 
 import numpy as np
 import torch
@@ -274,11 +275,44 @@ class WGAN_GP(object):
         grid = utils.make_grid(samples)
         print("Grid of 8x8 images saved to 'wgan_model_image.png'.")
         utils.save_image(grid, 'wgan_model_image.png')
+
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
-        img = mpimg.imread('dcgan_model_image.png')
+        img = mpimg.imread('wgan_model_image.png')
         imgplot = plt.imshow(img)
         plt.show()
+
+        labels = random.sample(range(len(test_loader.dataset.classes)), 2)
+
+        wgan_images = []
+        real_images = []
+
+        for batch, (images, targets) in enumerate(test_loader):
+            for image, target in zip(images, targets):
+                if target.item() in labels:
+                    z_wgan = torch.randn(1, 100, 1, 1)
+                    wgan_image = self.G(z_wgan).detach().squeeze().numpy()
+                    wgan_images.append(wgan_image)
+
+                # Select real images
+                real_images.append(image.numpy())
+
+                if len(wgan_images) >= 2:
+                    break
+
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(2, 2))
+        ax = axes.ravel()
+        ax[0].imshow(wgan_images[0], cmap='gray')
+        ax[0].set_title(f'wgan image 1 of labels {labels}'), ax[0].axis('off')
+        ax[1].imshow(wgan_images[1], cmap='gray')
+        ax[1].set_title(f'wgan image 2 of labels {labels}'), ax[1].axis('off')
+        ax[2].imshow(real_images[0].T, cmap='gray')
+        ax[2].set_title(f'real image 1 of labels {labels}'), ax[2].axis('off')
+        ax[3].imshow(real_images[1].T, cmap='gray')
+        ax[3].set_title(f'real image 2 of labels {labels}'), ax[3].axis('off')
+        plt.tight_layout()
+        plt.show()
+        return wgan_images, real_images
 
     def calculate_gradient_penalty(self, real_images, fake_images):
         eta = torch.FloatTensor(self.batch_size, 1, 1, 1).uniform_(0, 1)

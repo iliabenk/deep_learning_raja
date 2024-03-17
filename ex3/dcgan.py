@@ -246,22 +246,11 @@ class DCGAN_MODEL(object):
         grid = utils.make_grid(samples)
         print("Grid of 8x8 images saved to 'dcgan_model_image.png'.")
         utils.save_image(grid, 'dcgan_model_image.png')
-        print('hiiiiiiiiiiiii')
+
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         img = mpimg.imread('dcgan_model_image.png')
         imgplot = plt.imshow(img)
-        plt.show()
-
-        discriminator_loss_comparison = plt.imread('discriminator_loss_comparison.png')
-        generator_loss_comparison = plt.imread('generator_loss_comparison.png')
-        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(4, 4))
-        ax = axes.ravel()
-        ax[0].imshow(discriminator_loss_comparison)
-        ax[0].set_title('discriminator loss comparison'), ax[0].axis('off')
-        ax[1].imshow(generator_loss_comparison)
-        ax[1].set_title('generator loss comparison'), ax[1].axis('off')
-        plt.tight_layout()
         plt.show()
 
         labels = random.sample(range(len(test_loader.dataset.classes)), 2)
@@ -282,7 +271,7 @@ class DCGAN_MODEL(object):
                 if len(dcgan_images) >= 2:
                     break
 
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(2, 2))
         ax = axes.ravel()
         ax[0].imshow(dcgan_images[0], cmap='gray')
         ax[0].set_title(f'dcgan image 1 of labels {labels}'), ax[0].axis('off')

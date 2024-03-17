@@ -300,16 +300,16 @@ class WGAN_GP(object):
                 if len(wgan_images) >= 2:
                     break
 
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(6, 6))
+        fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 20))
         ax = axes.ravel()
         ax[0].imshow(wgan_images[0])
         ax[0].set_title(f'wgan image 1 of labels {labels}'), ax[0].axis('off')
         ax[1].imshow(wgan_images[1])
         ax[1].set_title(f'wgan image 2 of labels {labels}'), ax[1].axis('off')
-        ax[2].imshow(wgan_images[2])
-        ax[2].set_title(f'wgan image 1 of labels {labels}'), ax[2].axis('off')
-        ax[3].imshow(wgan_images[3])
-        ax[3].set_title(f'wgan image 2 of labels {labels}'), ax[3].axis('off')
+        ax[2].imshow(real_images[2])
+        ax[2].set_title(f'real image 1 of labels {labels}'), ax[2].axis('off')
+        ax[3].imshow(real_images[3])
+        ax[3].set_title(f'real image 2 of labels {labels}'), ax[3].axis('off')
         plt.tight_layout()
         plt.show()
         return wgan_images, real_images

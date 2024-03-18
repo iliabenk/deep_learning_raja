@@ -1,5 +1,5 @@
 DATA_DIR = 'data'
-DATA_TYPE = "MNIST" # "fashion" / "MNIST"
+DATA_TYPE = "fashion" # "fashion" / "MNIST"
 
 INIT_SEED = 42
 

@@ -319,7 +319,7 @@ class DCGAN_MODEL(object):
         print('Generator model loaded from {}.'.format(G_model_path))
         print('Discriminator model loaded from {}-'.format(D_model_path))
 
-    def generate_latent_walk(self, number):
+    def generate_latent_walk(self, number, is_save_image=True):
         if not os.path.exists('dcgan_interpolated_images/'):
             os.makedirs('dcgan_interpolated_images/')
 
@@ -345,6 +345,8 @@ class DCGAN_MODEL(object):
             images.append(fake_im.view(self.C, 32, 32).data.cpu())
 
         grid = utils.make_grid(images, nrow=number_int)
-        utils.save_image(grid, 'dcgan_interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
-        print("Saved interpolated images to dcgan_interpolated_images/interpolated_{}.".format(str(number).zfill(3)))
+
+        if is_save_image:
+            utils.save_image(grid, 'dcgan_interpolated_images/interpolated_{}.png'.format(str(number).zfill(3)))
+            print("Saved interpolated images to dcgan_interpolated_images/interpolated_{}.".format(str(number).zfill(3)))
 

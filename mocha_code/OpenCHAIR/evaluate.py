@@ -3,8 +3,8 @@ import argparse
 from datasets import load_dataset
 
 from utils import (
-    extract_nouns,
-    extract_verbs,
+    extract_objects,
+    extract_verbs_llm,
     load_llm_pipe, 
     get_answers
 )
@@ -44,6 +44,11 @@ def get_llm_responses(df, llm_pipe):
     responses_flat = apply_ignore_words(responses_flat, objs_flat)
     responses = unflatten_responses(responses_flat,df)
 
+    pd.DataFrame({"gt_caption": df.gt_caption,
+                  "generated_caption": df.generated_caption,
+                  "generated_objs": df.generated_objs,
+                  "llm_responses": responses}).to_csv("responses.csv")
+
     return responses
 
 def get_och_score(llm_responses):
@@ -62,12 +67,14 @@ def eval(args):
     df['gt_caption'] = och_dataset['text']
 
     word_conc = pd.read_excel(args.concreteness_dataset_path)[['Word','Conc.M']].set_index("Word").to_dict()['Conc.M']
-    print("\nExtracting Generated Objects (Per Image)\n")
-    extract_verbs(df.generated_caption.tolist())
-    df['generated_objs'] = extract_nouns(df.generated_caption.tolist(), word_conc)
 
     print("\nLoading LLM\n")
     llm_pipe = load_llm_pipe(args)
+
+    print("\nExtracting Generated Objects (Per Image)\n")
+    df['generated_objs'] = extract_objects(captions=df.generated_caption.tolist(), conc_df=word_conc, llm_pipe=llm_pipe)
+
+
 
     print("\nGetting LLM Responses\n")
     llm_responses = get_llm_responses(df, llm_pipe)
@@ -81,13 +88,13 @@ def eval(args):
 if __name__ == "__main__":
     import os
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-	
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--llm-ckpt", type=str, default="meta-llama/Llama-2-70b-chat-hf")
+    parser.add_argument("--llm-ckpt", type=str, default="mistralai/Mistral-7B-Instruct-v0.2")
     parser.add_argument("--concreteness-dataset-path", type=str,
                         default="Concreteness_ratings_Brysbaert_et_al_BRM.xlsx")
     parser.add_argument("--device", type=str, default='cuda')
-    parser.add_argument("--cache-dir", type=str, default=None)
+    parser.add_argument("--cache-dir", type=str, default="cache_dir")
     parser.add_argument("--generations-file-path", type=str, default="out.csv")
     parser.add_argument("--batch-size", type=int, default=32)
     args = parser.parse_args()

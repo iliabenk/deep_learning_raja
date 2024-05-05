@@ -34,7 +34,8 @@ def generate(och_dataset, args):
 
 def run(args):
     print("Loading Dataset\n")
-    och_dataset = load_dataset("moranyanuka/OpenCHAIR", cache_dir=args.cache_dir)['test']
+    # och_dataset = load_dataset("moranyanuka/OpenCHAIR", cache_dir=args.cache_dir)['test']
+    och_dataset = load_dataset("iliabenk/OpenCHAIR_experiments", cache_dir=args.cache_dir)['train']
     print("\nGenerating Captions\n")
     generated_captions = generate(och_dataset, args)
 
@@ -50,6 +51,6 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--num-beams", type=int, default=1)
     parser.add_argument("--cache-dir", type=str, default=None)
-    parser.add_argument("--output-dir", type=str, default="./OpenCHAIR/out.csv")
+    parser.add_argument("--output-dir", type=str, default="./OpenCHAIR/out_ilia_verbs.csv")
     args = parser.parse_args()
     run(args)

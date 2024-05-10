@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cache-dir", type=str, default="/home/iliabenkovitch/mocha_code/hf_cache")
-    parser.add_argument("--data-file", type=str, default="/home/iliabenkovitch/mocha_code/OpenCHAIR/captions_to_generate_images_100.csv")
+    parser.add_argument("--data-file", type=str, default="/home/iliabenkovitch/mocha_code/OpenCHAIR/captions_5k.csv")
     parser.add_argument("--output-dir", type=str, default="/home/iliabenkovitch/mocha_code/datasets/images/")
     args = parser.parse_args()
 

@@ -63,7 +63,7 @@ def get_och_score(llm_responses):
 def eval(args):
     print("Loading Dataset\n")
     # och_dataset = load_dataset("moranyanuka/OpenCHAIR", cache_dir=args.cache_dir)['test']
-    och_dataset = load_dataset("iliabenk/verbs_2", cache_dir=args.cache_dir)['train']
+    och_dataset = load_dataset("iliabenk/mocha_verbs", cache_dir=args.cache_dir)['test']
     df = pd.read_csv(args.generations_file_path)
     df['gt_caption'] = och_dataset['text']
 
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                         default="Concreteness_ratings_Brysbaert_et_al_BRM.xlsx")
     parser.add_argument("--device", type=str, default='cuda')
     parser.add_argument("--cache-dir", type=str, default="cache_dir")
-    parser.add_argument("--generations-file-path", type=str, default="out_700_ilia_verbs.csv")
+    parser.add_argument("--generations-file-path", type=str, default="verbs_generated_caption_production_no_ft.csv")
     parser.add_argument("--batch-size", type=int, default=32)
     args = parser.parse_args()
     eval(args)

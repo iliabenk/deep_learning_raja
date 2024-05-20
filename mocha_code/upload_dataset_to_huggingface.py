@@ -42,19 +42,16 @@ def upload_to_hf(hf_dataset, dataset_dir):
     dataset = load_dataset("imagefolder",
                            data_dir=dataset_dir)
 
-    dataset.push_to_hub(hf_dataset)
+    dataset.push_to_hub(hf_dataset, token="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")
 
 if __name__ == "__main__":
-    # gen_csv_to_upload("/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl"
-    #                   "/captions_5k_upload_huggingface.csv",
-    #                   "/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl"
-    #                   "/captions_5k_upload_huggingface_out.csv"
+    # gen_csv_to_upload("/Users/iliabenkovitch/Documents/mocha/files/production/verb_captions.csv",
+    #                   "/Users/iliabenkovitch/Documents/mocha/files/production/verb_captions_hf.csv"
     #                   )
 
-    # gen_data_for_hf(csv_path="/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl"
-    #                       "/captions_5k_upload_huggingface_out.csv",
-    #                 images_dir="/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl/images_gpt4",
-    #                 output_dir="/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl/dataset")
+    # gen_data_for_hf(csv_path="/Users/iliabenkovitch/Documents/mocha/files/production/verb_captions_hf.csv",
+    #                 images_dir="/Users/iliabenkovitch/Documents/mocha/files/production/hf_images/test/",
+    #                 output_dir="/Users/iliabenkovitch/Documents/mocha/files/production/dataset")
 
-    upload_to_hf(hf_dataset="iliabenk/verbs_2",
-                 local_dataset="/Users/iliabenkovitch/Documents/deep_learning_raja/mocha_files/images_xl/dataset")
+    upload_to_hf(hf_dataset="iliabenk/mocha_verbs",
+                 dataset_dir="/Users/iliabenkovitch/Documents/mocha/files/production/hf_images")

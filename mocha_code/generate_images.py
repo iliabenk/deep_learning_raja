@@ -33,8 +33,9 @@ def generate_dataset(args):
     sd_kwargs = SD_KWARGS.copy()
     sd_kwargs["negative_prompt"] = [sd_kwargs["negative_prompt"]] * BS
 
-    j = 0
-    for i in tqdm(range(data_.index.max()+1)):
+    start_idx = 798
+    j = start_idx * 2
+    for i in tqdm(range(start_idx, data_.index.max()+1)):
         #image_ids = data_.loc[i].filename.tolist()
         #prompts = data_.loc[i].altered_caption.to_list()
 
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cache-dir", type=str, default="/home/iliabenkovitch/mocha_code/hf_cache")
-    parser.add_argument("--data-file", type=str, default="/home/iliabenkovitch/mocha_code/OpenCHAIR/captions_5k.csv")
+    parser.add_argument("--data-file", type=str, default="/home/iliabenkovitch/mocha_code/OpenCHAIR/captions_no_dups.csv")
     parser.add_argument("--output-dir", type=str, default="/home/iliabenkovitch/mocha_code/datasets/images/")
     args = parser.parse_args()
 

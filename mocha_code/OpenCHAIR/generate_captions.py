@@ -36,7 +36,7 @@ def run(args):
     print("Loading Dataset\n")
     # och_dataset = load_dataset("moranyanuka/OpenCHAIR", cache_dir=args.cache_dir)['test']
     # och_dataset = load_dataset("iliabenk/OpenCHAIR_experiments", cache_dir=args.cache_dir)['train']
-    och_dataset = load_dataset("iliabenk/more_verbs_1", cache_dir=args.cache_dir)['train']
+    och_dataset = load_dataset("iliabenk/mocha_verbs", cache_dir=args.cache_dir)['test']
     print("\nGenerating Captions\n")
     generated_captions = generate(och_dataset, args)
 
@@ -46,12 +46,13 @@ def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-ckpt", type=str, default="moranyanuka/blip-image-captioning-base-mocha")
+    # parser.add_argument("--model-ckpt", type=str, default="moranyanuka/blip-image-captioning-base-mocha")
+    parser.add_argument("--model-ckpt", type=str, default="Salesforce/blip-image-captioning-large")
     parser.add_argument("--prompt", type=str, default="a photography of ")
     parser.add_argument("--device", type=str, default='cuda')
     parser.add_argument("--batch-size", type=int, default=100)
     parser.add_argument("--num-beams", type=int, default=1)
     parser.add_argument("--cache-dir", type=str, default=None)
-    parser.add_argument("--output-dir", type=str, default="./OpenCHAIR/out_700_ilia_verbs.csv")
+    parser.add_argument("--output-dir", type=str, default="./OpenCHAIR/verbs_generated_caption_production.csv")
     args = parser.parse_args()
     run(args)

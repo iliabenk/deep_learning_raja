@@ -4,7 +4,6 @@ from datasets import load_dataset
 
 from utils import (
     extract_objects,
-    extract_verbs_llm,
     load_llm_pipe, 
     get_answers
 )
@@ -95,8 +94,8 @@ if __name__ == "__main__":
     parser.add_argument("--concreteness-dataset-path", type=str,
                         default="Concreteness_ratings_Brysbaert_et_al_BRM.xlsx")
     parser.add_argument("--device", type=str, default='cuda')
-    parser.add_argument("--cache-dir", type=str, default="cache_dir")
-    parser.add_argument("--generations-file-path", type=str, default="verbs_generated_caption_production_no_ft.csv")
+    parser.add_argument("--cache-dir", type=str, default=None)
+    parser.add_argument("--generations-file-path", type=str, default="./OpenCHAIR/out.csv")
     parser.add_argument("--batch-size", type=int, default=32)
     args = parser.parse_args()
     eval(args)

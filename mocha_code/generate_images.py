@@ -57,14 +57,13 @@ def generate_dataset(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    # parser.add_argument("--model-id", type=str, default="stabilityai/stable-diffusion-2")
     parser.add_argument("--model-id", type=str, default="stabilityai/stable-diffusion-xl-base-1.0")
     parser.add_argument("--device", type=str, default='cuda')
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--cache-dir", type=str, default="/home/iliabenkovitch/mocha_code/hf_cache")
-    parser.add_argument("--data-file", type=str, default="/home/iliabenkovitch/mocha_code/OpenCHAIR/captions_no_dups.csv")
-    parser.add_argument("--output-dir", type=str, default="/home/iliabenkovitch/mocha_code/datasets/images/")
+    parser.add_argument("--cache-dir", type=str, default=None)
+    parser.add_argument("--data-file", type=str, default="./OpenCHAIR/captions_for_image_generation.csv")
+    parser.add_argument("--output-dir", type=str, default="./datasets/images/")
     args = parser.parse_args()
 
     generate_dataset(args)

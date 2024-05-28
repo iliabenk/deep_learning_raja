@@ -144,10 +144,6 @@ def extract_verbs_spacy(captions, llm_pipe):
     
     def _prompt_llm(pipe, prompt):
         output = pipe(prompt, max_new_tokens=150, do_sample=False, num_return_sequences=1)
-        
-        # print(output[0]['generated_text']) # debug
-        # output = output[0]['generated_text'][len(prompt):].strip().translate(str.maketrans('', '', string.punctuation)).lower().split()
-        # output = output[0]['generated_text'][len(prompt):].strip().lower().split()
 
         return output[0]['generated_text']
 
@@ -157,7 +153,7 @@ def extract_verbs_spacy(captions, llm_pipe):
     verbs = []
     for caption in tqdm(captions):
         doc = nlp(caption.lower())
-        # cur_verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB']
+
         _cur_verbs = [token for token in doc if token.pos_ == 'VERB']
 
         if len(_cur_verbs) == 0:
@@ -190,55 +186,8 @@ def extract_verbs_spacy(captions, llm_pipe):
 
     return verbs
 
-def extract_verbs_llm(captions, llm_pipe):
-    END_SEQ_TOKENS = "!@#"
-
-    def _make_prompt(cap, tokenizer):
-        _prompt = _prompt = f'''I will provide a sentence, write to me ONLY the verbs in their basic form that appear in the sentence, do not provide any explanation. If no verbs exist, return []. Finish your response with the sequence {END_SEQ_TOKENS}\n
-          Here are few examples:\n
-            Q: a face with a red makeup\n
-            A: []{END_SEQ_TOKENS}\n
-            Q: kids playing soccer\n
-            A: play{END_SEQ_TOKENS}\n
-            Q: a couple hugging under a tree\n
-            A: hug{END_SEQ_TOKENS}\n
-            Q: a child sitting at a desk writing a letter\n
-            A: sit, write{END_SEQ_TOKENS}\n
-            Q: {cap}\n
-            A:'''
-        prompt = tokenizer.apply_chat_template([{'role':'user', "content":_prompt}], tokenize=False)
-        return prompt
-
-    def _get_answers(captions, pipe):
-        import string
-        _punctuations = string.punctuation
-        prompts = [_make_prompt(cap, pipe.tokenizer) for cap in captions]
-        dataset = ListDataset(prompts)
-        
-        outputs = []
-        with tqdm(total=len(prompts)) as pbar:
-            for out in pipe(dataset, max_new_tokens=50, do_sample=False, num_return_sequences=1):
-                outputs.append(out[0]["generated_text"])
-                pbar.update(1)
-        
-        # outputs = [f"[{outputs[i][len(prompts[i]):].split(END_SEQ_TOKENS)[0].strip().translate(str.maketrans('', '', string.punctuation))}]" for i in range(len(outputs))]
-        outputs = [outputs[i][len(prompts[i]):].split(END_SEQ_TOKENS)[0].strip() for i in range(len(outputs))]
-        return outputs
-    
-    outputs = _get_answers(captions, llm_pipe)
-    # nlp = en_core_web_sm.load()
-    # nlp = en_core_web_lg.load()
-    # nlp = en_core_web_md.load()
-    verbs = []
-    for caption in tqdm(captions):
-        doc = nlp(caption.lower())
-        cur_verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB' and is_concrete(token.lemma_, conc_df,
-                                                                                           t=3.5)]
-        verbs.append(cur_verbs)
-    return verbs
-
 def load_llm_pipe(args):
-    tokenizer = AutoTokenizer.from_pretrained(args.llm_ckpt, token="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")
+    tokenizer = AutoTokenizer.from_pretrained(args.llm_ckpt)
     tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.pad_token = "[PAD]"
     tokenizer.padding_side = "left"
@@ -250,8 +199,7 @@ def load_llm_pipe(args):
     
     model = AutoModelForCausalLM.from_pretrained(args.llm_ckpt,
                                                  quantization_config=bnb_config,device_map="auto",
-                                                 cache_dir=args.cache_dir,
-                                                 token="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")
+                                                 cache_dir=args.cache_dir)
     pipe = pipeline("text-generation",
                     model=model,
                     tokenizer=tokenizer,

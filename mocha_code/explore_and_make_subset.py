@@ -11,11 +11,6 @@ import os
 
 nlp = spacy.load("en_core_web_trf")
 
-def is_concrete(noun, t=4.5):
-    if noun in concreteness:
-        return concreteness[noun] > t
-    return False
-
 @lru_cache(maxsize=None)
 def get_verbs(cap):
     doc = nlp(cap.lower())
@@ -214,14 +209,14 @@ def filter_csv(input_path, output_path, filter_type, imsitu_verbs_file=None):
     df_rare.to_csv(output_path)
 
 if __name__ == "__main__":
-    # df = generate_csv(input_db_path='/Users/iliabenkovitch/Documents/mocha/files/out_ilia_mistral.db',
-    #                   db_type='sql',
-    #              output_path="/Users/iliabenkovitch/Documents/mocha/files/verbs_captions_mistral_with_counts_122k.csv")
+    df = generate_csv(input_db_path='/Users/iliabenkovitch/Documents/mocha/files/out_ilia_mistral.db',
+                      db_type='sql',
+                 output_path="/Users/iliabenkovitch/Documents/mocha/files/verbs_captions_mistral_with_counts_122k.csv")
 
     filter_csv(input_path="/Users/iliabenkovitch/Documents/mocha/files/verbs_captions_mistral_with_counts_122k.csv",
                output_path="/Users/iliabenkovitch/Documents/mocha/files/verbs_captions_mistral_with_counts_122k_filtered_small_repeating_verbs.csv",
                imsitu_verbs_file="/Users/iliabenkovitch/Documents/mocha/files/imsitu_verbs_extended.csv",
-               filter_type=15)
+               filter_type='rare')
 
     # df = pd.read_csv("/Users/iliabenkovitch/Documents/mocha/files/verbs_captions_mistral_with_counts_filtered.csv")
     # generate_hist(df)
